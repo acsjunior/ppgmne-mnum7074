@@ -1,0 +1,798 @@
+---
+title: |
+  | Universidade Federal do Paraná
+  | Mestrado em Métodos Numéricos em Engenharia
+  | Probabilidade e Estatística Matemática I
+  | Prof. José Luiz Padilha
+  | Lista de Exercícios
+author: "Antonio C. da Silva Júnior"
+output: 
+  bookdown::pdf_document2:
+    toc: false
+date: '2022-06-23'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Questão 1
+
+Prove ou refute cada uma das afirmações.
+
+a. Se $P(A) = P(B) = p$, então $P(A \cap B) \leq p^2$ \newline
+
+Contraexemplo: Lançamento de duas moeadas honestas
+
+$\Omega = \{ (0,0), (0,1), (1,0), (1,1)\}$
+
+$A = \{ (0,1), (1,0), (1,1)\}$
+
+$B = \{ (0,0), (0,1), (1,0)\}$
+
+$A \cap B = \{ (0,1), (1,0)\}$
+
+$P(A) = 3/4 = 0.75$
+
+$P(B) = 3/4 = 0.75$
+
+$P(A \cap B) = 1/2 = 0.5$
+
+$0.75 \leq (0.5)^2$ é falso.
+
+**Refutado!** \newline\newline
+
+b. Se $P(A) = 0$, então $A = \emptyset$ \newline
+
+Contraexemplo:
+
+$\Omega = \{\omega_1, \omega_2, \ldots, \omega_n\}$
+
+$P(\Omega) = \displaystyle\sum_{j=1}^n P(\omega_j) = 1$
+
+Se $A = \omega_1$ e $P(A) = P(\omega_1) = 0$
+
+Então $P(\Omega) = P(A) + P(A^c) = 1$
+
+**Refutado!** \newline\newline
+
+c. Se $P(A) = 0$, então $P(A \cap B) = 0$ \newline
+
+$P(A \cup B) = P(A) + P(B) - P(A \cup B)$
+
+$P(A \cup B) = 0 + P(B) - 0$
+
+$P(A \cup B) = P(B)$ \newline
+
+Propriedades:
+
+Se $A = \emptyset, P(A) = 0$
+
+$A \cup B = B$, $P(A \cup B) = P(B)$
+
+$A \cap B = A = \emptyset$, $P(A \cap B) = P(A) = 0$
+
+**Provado!**
+
+\dotfill
+
+### Questão 2
+
+Prove ou refute cada uma das afirmações, assumindo que nenhum dos eventos tem probabilidade nula.
+
+a. Se $P(A \mid B) > P(A)$, então $P(B \mid A) > P(B)$ \newline
+
+$P(A \mid B) > P(A) \implies \dfrac{P(A \cap B)}{P(B)} > P(A)$
+
+$P(A \mid B) > P(A) \implies P(A \cap B) > P(A)P(B)$
+
+$P(A \mid B) > P(A) \implies P(B \cap A) > P(B)P(A)$
+
+$P(A \mid B) > P(A) \implies \dfrac{P(B \cap A)}{P(A)} > P(B)$
+
+$P(A \mid B) > P(A) \implies P(B \mid A) > P(B)$
+
+**Provado!** \newline\newline
+
+b. Se $P(A) > P(B)$, então $P(A \mid C) > P(B \mid C)$ \newline
+ 
+Contraexemplo: Lançamento de duas moedas não viciadas.
+
+$\Omega = \{ (0,0), (0,1),(1,0),(1,1)\}$
+
+$A = \{(0,1), (1,0), (1,1)\}$
+
+$B = \{(0,1), (1,1)\}$
+
+$C = \{(1,1)\}$
+
+$P(A) = 3/4 = 0.75$
+
+$P(B) = 1/2 = 0.5$
+
+$P(A \mid C) = 1$
+
+$P(B \mid C) = 1$
+
+$P(A) > P(B)$ é verdadeiro
+
+$P(A \mid C) > P(B \mid C)$ é falso
+
+**Refutado!**
+
+\dotfill
+
+### Questão 3
+
+Prove: Se $P(A^c) = \alpha$ e $P(B^c) = \beta$, então $P(A \cap B) \geq 1 - \alpha - \beta$ \newline
+
+$P(A \cap B) \geq 1 - \alpha - \beta$;
+
+$P(A \cap B) \geq 1 - P(A^c) - P(B^c)$;
+
+$P(A \cap B) \geq 1 - [1 - P(A)] - [1 - P(B)]$;
+
+$P(A \cap B) \geq 1 - 1 + P(A) - 1 + P(B)$;
+
+$P(A \cap B) \geq P(A) - 1 + P(B)$;
+
+$-P(A) -  P(B) + P(A \cap B) \geq -1$
+
+Multiplicando por -1:
+
+$P(A) +  P(B) - P(A \cap B) \leq 1$
+
+$P(A \cup B) \leq 1$ é verdadeiro
+
+**Provado!**
+
+\dotfill
+
+### Questão 4 
+
+Prove ou refute cada uma das afirmações.
+
+a. Se $A$ e $B$ são eventos independentes, então $P(A \cap B \mid C) = P(A \mid C)P(B \mid C)$
+
+(Está relecionado ao paradoxo de Simpson) \newline
+
+Contraexemplo: Lançamento de duas moedas não viciadas. 
+
+$\Omega = \{(0,0), (0,1), (1,0), (1,1)\}$
+
+$A = \{(1,0), (1,1)\}$
+
+$B = \{(0,1), (1,1)\}$
+
+$C = \{(0,1), (1,0), (1,1)\}$
+
+$A \cap B = \{ (1,1)\}$
+
+$P(A \cap B \mid C) = \dfrac{P(A \cap B \cap C)}{P(C)}$
+
+$P(A \cap B \mid C) = \dfrac{1/4}{3/4} = \dfrac{1}{4} \cdot \dfrac{4}{3} = \dfrac{4}{12} = \dfrac{1}{3}$
+
+$P(A \mid C) = \dfrac{2}{3}$
+
+$P(B \mid C) = \dfrac{2}{3}$
+
+$P(A \mid C)P(B \mid C) = \dfrac{4}{9}$
+
+**Refutado!** \newline\newline
+
+b. Se $P(A \mid B) = P(B)$, então $A$ e $B$ são independentes \newline
+
+$P(A \mid B) = P(B)$
+
+$\dfrac{P(A \cap B)}{P(B)} = P(B)$
+
+$P(A \cap B) = P(B)P(B)$
+
+Se $A$ e $B$ fossem independentes, $P(A \cap B) = P(A)P(B)$.
+
+**Refutado!** \newline\newline
+
+c. Se $A$, $B$ e $C$ são independentes, então $P(B \mid A \cap C) = P(B \mid A \cup C) = P(B)$ \newline
+
+$P(B \mid A \cap C) = P(B)$
+
+$\dfrac{P[B \cap (A \cap C)]}{P(A \cap C)} = P(B)$
+
+$\dfrac{P(B \cap A \cap C)}{P(A \cap C)} = P(B)$
+
+Se $A$, $B$ e $C$ são independentes, então:
+
+$\dfrac{P(B)P(A)P(C)}{P(A)P(C)} = P(B)$
+
+$P(B) = P(B)$ é verdadeiro \newline
+
+$P(A \mid A \cup C) = P(B)$
+
+$\dfrac{P[B \cap (A \cup C)]}{P(A \cup C)} = P(B)$
+
+$\dfrac{P(B)P(A \cup C)}{P(A \cup C)} = P(B)$
+
+$P(B) = P(B)$ é verdadeiro.
+
+**Provado!**
+
+\dotfill
+
+### Questão 5 
+
+Sejam $B_1, B_2, \ldots, B_n$ eventos mutualmente disjuntos, e seja $B = \bigcup_{j=1}^n B_j$. Suponha que $P(B_j) > 0$ e $P(A \mid B_j) = p$, para $j = 1,2,\ldots, n$. Mostre que $P(A \mid B) = p$ \newline
+
+Se $B_1, B_2, \ldots, B_n$ são mutualmente disjuntos, então 
+
+$P(B) = P(B_1 \cup B_2 \ldots B_n) = P(B_1) + P(B_2) + \ldots + P(B_n) = q$
+
+Como $P(A \mid B_1) = P(A \mid B_2) = \ldots - P(A \mid B_n) = p$
+
+Temos que $P(B_1) = P(B_2) = \ldots = P(B_n) = \dfrac{q}{n}$ \newline
+
+$p = P(A \mid B_j)$
+
+$p = \dfrac{P(A \cap B_j)}{P(B_j)}$
+
+$p = \dfrac{P(A \cap B_j)}{\frac{q}{n}}$
+
+$p = \dfrac{nP(A \cap B_j)}{q}$
+
+$p = \dfrac{P(A \cap B_1) + P(A \cap B_2) + \ldots + P(A \cap B_n)}{q}$
+
+$p = \dfrac{P[(A \cap B_1) \cup (A \cap B_2) \cup \ldots \cup (A \cap B_n)]}{q}$
+
+$p = \dfrac{P[A \cap (B_1 \cup B_2 \cup \ldots \cup B_n)]}{q}$
+
+$p = \dfrac{P(A \cap B)}{q}$
+
+$p = \dfrac{P(A \cap B)}{P(B)}$
+
+$p = P(A \mid B)$
+
+**Provado!**
+
+\dotfill
+
+### Questão 6 
+
+Mostre que cada uma das seguintes são funções densidade de probabilidade:
+
+* a. $f_1(x) = e^{-x}I_{(0,\infty)}(x)$
+
+Para que uma função seja uma Função Densidade de Probabilidade:
+
+* $f(x) \geq 0$;
+* $\displaystyle\int_{-\infty}^{\infty} f(x) dx = 1$ \newline
+
+Observa-se que $f_1(x) \geq 0 \;\; \forall x$ \newline
+
+$\displaystyle\int_{0}^{\infty} e^{-x} dx$
+
+$u = -x$
+
+$du = -1dx \implies dx = -du$
+
+$\displaystyle\int_{0}^{\infty} e^{-x} dx \implies \displaystyle\int_{0}^{\infty} e^{u} (-du) \implies -\displaystyle\int_{0}^{\infty} e^{u}du$
+
+$-\displaystyle\int_{0}^{\infty} e^{u}du = -e^u = -e^{-x}$
+
+$-e^{-\infty} - [-e^{-0}] =$
+
+$-e^{-\infty} + e^{0} =$
+
+$0 + 1 = 1$
+
+**Provado!** \newline\newline
+
+* b. $f_2(x) = 2e^{-2x}I_{(0,\infty)}(x)$ \newline
+
+Observa-se que $f_2(x) \geq 0 \;\; \forall x$ \newline
+
+$\displaystyle\int_{0}^{\infty}2e^{-2x} dx$
+
+$u = -2x$
+
+$du = -2 dx$
+
+$dx = \dfrac{du}{-2}$
+
+$\displaystyle\int_{0}^{\infty}2e^{-2x} dx \implies \displaystyle\int_{0}^{\infty}2e^{u} \dfrac{du}{-2} \implies -\displaystyle\int_{0}^{\infty}e^u du$
+
+$-\displaystyle\int_{0}^{\infty}e^u du = -e^u = -e^{-2x}$
+
+$-e^{-2\infty} - [-e^{-2(0)}] =$
+
+$-e^{-\infty} + e^{0} =$
+
+$0 + 1 = 1$
+
+**Provado!** \newline
+
+* c. $f(x) = (\theta + 1)f_1(x) - \theta f_2(x), \;\; 0 < \theta < 1$ \newline
+
+Observa-se que $f_1(x) \geq 0$, $f_2(x) \geq 0$ e $0 < \theta < 1$
+
+Logo, $f(x) \geq 0 \;\; \forall x$ \newline
+
+
+$\displaystyle\int_{0}^{\infty} (\theta + 1)f_1(x) - \theta f_2(x) dx$
+
+
+$\displaystyle\int_{0}^{\infty} (\theta + 1)f_1(x) dx - \displaystyle\int_{0}^{\infty} \theta f_2(x) dx$
+
+$(\theta + 1)\displaystyle\int_{0}^{\infty} f_1(x) dx -  \theta \displaystyle\int_{0}^{\infty}f_2(x) dx$
+
+$[-(\theta + 1)e^{\infty} + (\theta + 1)e^{0}] - [-\theta e^{\infty} + \theta e^{0}]$
+
+$-(\theta + 1)e^{\infty} + (\theta + 1)e^{0} + \theta e^{\infty} - \theta e^{0}$
+
+$\theta + 1 - \theta = 1$
+
+**Provado!**
+
+\dotfill
+
+### Questão 7
+
+Ao responder um teste de múltipla escolha, o estudante ou sabe a resposta ou chuta. Seja $p$ a probabilidade de que o estudante saiba a resposta e $1-p$ a probabilidade de que o estudante chute a resposta. Assuma que o estudante que chuta a resposta vai acertá-la com probabilidade $1/m$, em que $m$ é o número de alternativas na questão de múltipla escolha. Se ele souber a resposta, responderá corretamente com probabilidade 1 \newline
+
+a. Qual é a probabilidade condicional de que um estudante sabia a resposta, dado que ele respondeu corretamente? \newline
+
+$A$: o estudante sabe a resposta
+
+$B$: o estudante acerta a resposta
+
+$P(A) = p$
+
+$P(A^c) = 1 - p$
+
+$P(B \mid A^c) = 1/m$
+  
+$P(B \mid A) = 1$ \newline
+
+$P(A \mid B) = \dfrac{P(A \cap B)}{P(B)} = \dfrac{P(B \mid A)P(A)}{P(B \mid A)P(A) + P(B \mid A^c)P(A^c)}$
+
+$P(A \mid B) = \dfrac{1(p)}{1(p) + (1/m)(1-p)}$
+
+$P(A \mid B) = \dfrac{p}{p + \dfrac{1-p}{m}}$ \newline\newline
+
+* b. Determine o limite desta probabilidade se $m \to \infty$ com o $p$ fixo. O que ocorre se $p \to 0$ com $m$ fixo? \newline
+
+Se $m \to \infty$, $P(A \mid B)  = 1$
+
+Se $p \to 0$, $P(A \mid B)  = 0$
+
+\dotfill
+
+### Questão 8
+
+* a. Seja $X$ uma variável aleatória tendo distribuição binomial com parâmetros $n=25$ e $p = 0.2$. Calcule $P(X < \mu_x - 2\sigma_x)$ \newline
+
+$\mu = E(X) = np = 25(0.2) = 5$
+
+$\sigma^2 = Var(X) = npq = 25(0.2)(0.8) = 4$
+
+$\sigma = \sqrt{4} = 2$ \newline
+
+$P(X < \mu_x - 2\sigma_x) \implies P(X < 5 - 1) \implies P(X < 1) \implies P(X = 0)$
+
+$P(X = 0) = \binom{25}{0}0.2^0(1-0.2)^{25-0} = 0.8^{25} = 0.003777893$ \newline\newline
+
+* b. Se $X$ é uma variável aleatória com distribuição de Poisson satisfazendo $P(X = 0) = P(X = 1)$, quanto vale $E(X)$? \newline
+
+$P(X = 0) = P(X = 1)$
+
+$\dfrac{e^{-\lambda}\lambda^0}{0!} = \dfrac{e^{-\lambda}\lambda^1}{1!}$
+
+$\dfrac{e^{-\lambda}1}{1} = \dfrac{e^{-\lambda}\lambda}{1}$
+
+$e^{-\lambda} = e^{-\lambda}\lambda$. Para ser verdadeira, $\lambda = 1$
+
+Portanto,
+
+$E(X) = \lambda = 1$ \newline\newline
+
+* c. Suponha que $X$ tenha distribuição binomial com parâmetros $n$ e $p$. Para qual valor de $p$ a $Var(X)$ é maximizada?
+
+$Var(X) = npq$
+
+$q = 1 - p$
+
+Logo, $p = q = 0.5$ maximiza a variância.
+
+\dotfill
+
+### Questão 9
+
+A função geradora de momentos de uma variável aleatória $X$ é dada pela expressão abaixo. Qual é a distribuição de $X$? Quanto valem $E(X)$ e $Var(X)$?
+
+$m_X(t) = \left( \dfrac{1}{3}e^t + \dfrac{2}{3}\right)^4$ \newline
+
+Função geradora de momentos da distribuição binomial:
+
+$mb_x(t) = (pe^t + q)^n$
+
+Podemos dizer que:
+
+$p = 1/3$
+
+$q = 1 - 1/3 = 2/3$
+
+$n = 4$
+
+Logo, $X$ tem distribuição binomial \newline
+
+$E(X) = np = 4/3$
+
+$Var(x) = npq = 8/9$
+
+\dotfill
+
+### Questão 10
+
+Responda
+
+* a. Se $X$ é uma variável aleatória tal que $E(X) = 3$ e $E(X^2) = 13$, use a desigualdade de Chebyshev para encontrar o limite inferior para $P(-2 < X < 8)$ \newline
+
+$P(\mu_X - r\sigma_X < X < \mu_X + r\sigma_X) \geq 1 - \dfrac{1}{r^2}$, em que:
+
+$\mu_X - r\sigma_X = -2$
+
+$\mu_X + r\sigma_X = 8$ \newline
+
+$\mu_X = E(X) = 3$
+
+$\sigma_X =  \sqrt{Var(X)} = \sqrt{E(X^2) - E(X)^2} = \sqrt{13 - 3^2} = 2$ \newline
+
+$\mu_X - r\sigma_X = -2$
+
+$3 - 2r = -2$
+
+$-r = \dfrac{-2 - 3}{2}$
+
+$r = \dfrac{5}{2}$
+
+Prova:
+
+$\mu_X + r\sigma_X = 8$
+
+$3 + 2r = 8$
+
+$2r = 8 - 3$
+
+$r = \dfrac{5}{2}$ \newline
+
+Sendo assim,
+
+$P(3 - 2r < X < 3 + 2r) \geq 1 - \dfrac{1}{r^2}$
+
+$P(-2 < X < 8) \geq 1 - \dfrac{1}{(5/2)^2}$
+
+$P(-2 < X < 8) \geq 1 - \dfrac{1}{25/4}$
+
+$P(-2 < X < 8) \geq 1 - \dfrac{4}{25}$
+
+$P(-2 < X < 8) \geq \dfrac{21}{25}$ \newline\newline
+
+* b. Seja $X$ uma variável aleatória discreta com densidade \newline
+
+$f(x) = \dfrac{1}{8}I_{\{-1\}}(x) + \dfrac{6}{8}I_{\{0\}}(x) + \dfrac{1}{8}I_{\{1\}}(x)$
+
+Para $k = 2$ avalie $P(|X - \mu_x| \geq k\sigma_x)$. (Isso mostra que em geral a desigualdade de Chebyshev não pode ser melhorada.) \newline
+
+$\mu = E(X) = (-1)\dfrac{1}{8} + (0)\dfrac{6}{8} + (1)\dfrac{1}{8}$
+
+$\mu = E(X) = \dfrac{-1}{8} + \dfrac{1}{8} = 0$ \newline
+
+$\sigma^2 = Var(X) = \displaystyle\sum_j (x_j - \mu_x)^2 f_x(x_j)$
+
+$\sigma^2 = Var(X) = (-1 - 0)^2\dfrac{1}{8} + (0 - 0)^2\dfrac{6}{8} + (1 - 0)^2\dfrac{1}{8}$
+
+$\sigma^2 = Var(X) = \dfrac{1}{8} + \dfrac{1}{8} = \dfrac{1}{4}$
+
+$\sigma = \sqrt{1/4} = 1/2$ \newline
+
+Desigualdade de Chebyshev
+
+$P(|X - \mu_x| \geq k\sigma_x) \leq \dfrac{1}{k^2}$
+
+$P(|X - 0| \geq 2(0.5)) \leq \dfrac{1}{2^2}$
+
+$P(|X| \geq 1) \leq \dfrac{1}{4}$ \newline\newline
+
+* c. Se $X$ é uma variável aleatória com $E(X) = \mu$ satisfazendo $P(X \geq 0) = 0$, mostre que $P(X > 2\mu) \leq \dfrac{1}{2}$ \newline
+
+Teorema desigualdade:
+
+$P(X \geq k) \leq \dfrac{E(X)}{k}$
+
+$P(X \geq 2\mu) \leq \dfrac{\mu}{2\mu}$
+
+$P(X \geq 2\mu) \leq \dfrac{1}{2}$
+
+\dotfill
+
+### Questão 11
+
+Um teste laboratorial de sangue é 95% efetivo em detectar uma certa doença quando, de fato, ela está presente. Contudo, o teste também produz um resultado *falso positivo* para 1% das pessoas saudáveis testadas. (Isto é, se uma pessoa saudável é testada, então, com probabilidade de 0.01, o resultado do teste indicará que a pessoa está doente.) Se 0.5% da população de fato tem a doença, qual é a probabilidade de que uma pessoa tenha a doença dado que o resultado do teste foi positivo \newline
+
+$A$: teste positivo
+
+$B$: ter realmente a doença
+
+$P(A \mid B) = 0.95$
+
+$P(A \mid B^c) = 0.01$
+
+$P(B) = 0.005$
+
+$P(B^c) = 0.995$ \newline
+
+Teorema de Bayes:
+
+$P(B \mid A) = \dfrac{P(A \mid B)P(B)}{P(A \mid B)P(B) + P(A \mid B^c)P(B^c)}$
+
+$P(B \mid A) = \dfrac{0.95(0.005)}{0.95(0.005) + 0.01(0.995)}$
+
+$P(B \mid A) = \dfrac{0.00475}{0.00475 + 0.00995}$
+
+$P(B \mid A) = 0.3231293$
+
+\dotfill
+
+### Questão 12
+
+Uma turma escolar de 120 alunos está sendo conduzida em 3 ônibus para uma apresentação sinfônica. Há 36 estudantes em um dos ônibus, 40 em outro, e 44 no terceiro ônibus. Quando os ônibus chegam, um dos 120 alunos é aleatoriamente escolhido. Seja $X$ o número de estudantes no ônibus em que estava o aluno aleatoriamente escolhido. Encontre $E(X)$ \newline
+
+$X = \{34, 40, 44\}$
+
+$E(X) = \displaystyle\sum x_j f_x(x_j)$
+
+$E(X) = 36(36/120) + 40(40/120) + 44(44/120) = 40.27$
+
+\dotfill
+
+### Questão 13
+
+Cada um dos membros de um painel de 7 juízes independentemente toma uma decisão correta com probabilidade de 0,8. Se a decisão do painel for tomada por maioria, responda:
+
+* a. Qual é a probabilidade de que o painel de juízes faça a decisão correta? \newline
+
+$P(X \geq 4) = 1 - P(X \leq 3) = 1 - P(X = 1) + P(X = 2) + P(X = 3)$
+
+$P(X = 1) = \dfrac{7!}{6!1!}0.8^1(0.2)^{6} = \dfrac{7\times6!}{6!}0.8^1(0.2)^{6} = 7(0.8)^1(0.2)^{6} = 0.0003584$
+
+$P(X = 2) = \dfrac{7!}{5!2!}0.8^2(0.2)^{5} = \dfrac{7\times6\times5!}{5!2!}0.8^2(0.2)^{5} = \dfrac{7\times6}{2}0.8^2(0.2)^{5} = 21(0.8)^2(0.2)^{5} = 0.0043008$
+
+$P(X = 3) = \dfrac{7!}{4!3!}0.8^3(0.2)^{4} = \dfrac{7\times6\times5\times4!}{4!3!}0.8^3(0.2)^{4} = \dfrac{7\times6\times5}{3!}0.8^3(0.2)^{4} = 35(0.8)^3(0.2)^{4} = 0.028672$
+
+$P(X \geq 4) = 1 - P(X = 1) - P(X = 2) - P(X = 3)$
+
+$P(X \geq 4) = 1 - 0.0003584 - 0.0043008 - 0.028672$
+
+$P(X \geq 4) = 0.9666688$ \newline\newline
+
+* b. Dado que 4 dos juízes concordam em suas decisões, qual é a probabilidade de que o painel tenha feito a decisão correta? \newline
+
+$A$: o painel tomou a decisão correta:
+
+$P(A) = P(X \geq 4) = 0.9666688$ \newline
+
+$B$: 4 juízes concordaram na decisão:
+
+$P(B) = P(X = 3) + P(X = 4) = 0.14336$ \newline
+
+O painel tomou a decisão correta e exatamente 4 juízes concordaram:
+
+$P(A \cap B) = P(X = 4) = 0.114688$ \newline
+
+$P(A \mid B) = \dfrac{P(A \cap B)}{P(B)} = \dfrac{P(X = 4)}{P(X = 3) + P(X = 4)} = \dfrac{0.114688}{0.14336} = 0.8$
+
+\dotfill
+
+### Questão 14
+
+Um restaurante popular apresenta apenas dois tipos de refeições: salada completa ou prato à base de carne. Considere que 20% dos fregueses do sexo masculino preferem a salada, 30% das mulheres escolhem carne, 75% dos frequeses são homens e os seguintes eventos:
+
+* H = freguês é homem;
+* M = freguês é mulher;
+* A = freguês prefere salada;
+* B = freguês prefere carne.
+
+Calcular:
+
+a. $P(H)$, $P(A \mid H)$, $P(B \mid M)$ \newline
+
+$P(H) = 0.75$ 75% dos fregueses são homens
+
+$P(A \mid H) = \dfrac{P(A \cap H)}{P(H)} = \dfrac{0.2(0.75)}{0.75} = 0.2$
+
+$P(B \mid M) = \dfrac{P(B \cap M)}{P(M)} = \dfrac{0.3(0.25)}{0.25} = 0.3$ \newline\newline
+
+b. $P(A \cap H)$, $P(A \cup H)$ \newline
+
+$P(A \cap H) = 0.2(0.75) = 0.15$
+
+$P(A) = P(A \cap H) + P(A \cap H^c) = 0.2(0.75) + 0.7(0.25) = 0.325$
+
+$P(A \cup H) = P(A) + P(H) - P(A \cap H) = 0.325 + 0.75 - 0.15 = 0.925$ \newline\newline
+
+c. $P(M \mid A)$ \newline
+
+$P(M \mid A) = \dfrac{P(M \cap A)}{P(A)} = \dfrac{0.25(0.7)}{0.325} = 0.5384615$
+
+\dotfill
+
+### Questão 15
+
+Considere $n$ pessoas numa sala
+
+* a. Qual é a probabilidade de que pelo menos duas pessoas façam aniversário no mesmo dia e mês? \newline
+
+1 - Assume-se que todos os anos possuem 365 dias;
+2 - Assume-se que das 365 datas de aniversário são equiprováveis;
+
+Calculando a probabiliade das $N$ pessoas fazerem aniversário em datas diferentes:
+
+$P(A^c) = \dfrac{365!}{365^n(365 - n)}$
+
+Portanto,
+
+$P(A) = 1 - P(A^c)$
+
+\dotfill
+
+* b. A partir de qual valor de N essa probabilidade é maior que 0.5?
+
+$\dfrac{365!}{365^n(365 - n)} > 0.5$
+
+\dotfill
+
+### Questão 16
+
+Um fabricante afirma que apenas 5% de todas as válvulas que produz têm duração inferior a 20 horas. Uma indústria compra semanalmente um grande lote de válvulas desse fabricante, mas sob a seguinte condição:     ela aceita o lote se, em dez válvulas escolhidas ao acaso, no máximo uma tiver duração inferior a 20 horas; caso contrário, o lote todo é rejeitado.
+
+* a. Se o fabricante de fato tem razão, qual a probabilidade de um lote ser rejeitado? \newline
+
+$A$: a válvula dura menos de 20 horas
+
+$P(A) = 0.05$ \newline
+
+$P(X = 0) = \dfrac{10!}{0!10!}0.05^0(0.95)^{10} = (0.95)^{10} = 0.5987369$
+
+$P(X = 1) = \dfrac{10!}{1!9!}0.05^1(0.95)^{9} = 10(0.05)^1(0.95)^{9} = 0.3151247$
+
+$P(X \leq 1) = P(X = 0) + P(X = 1) = 0.5987369 + 0.3151247 = 0.9138616$ é a probabilidade do lote ser aceito
+
+$P(X > 1) = 1 - P(X \leq 1) = 1 - 0.9138616 = 0.0861384$ é a probabilidade do lote ser rejeitado \newline\newline
+
+* b. Suponha agora que o fabricante esteja mentindo, isto é, na verdade a proporção de válvulas com duração inferior a 20 horas é de 10%. Qual a probabilidade de um lote ser aceito, segundo o critério acima? \newline
+
+$P(A) = 0.1$ probabilidade da válvula durar menos de 20 horas
+
+$P(X = 0) = \dfrac{10!}{0!10!}0.1^0(0.9)^{10} = (0.9)^{10} = 0.3486784$
+
+$P(X = 1) = \dfrac{10!}{1!9!}0.1^1(0.9)^{9} = 10(0.1)^1(0.9)^{9} = 0.3874205$
+
+$P(X \leq 1) = P(X = 0) + P(X = 1) = 0.3486784 + 0.3874205 = 0.7360989$ é a probabilidade do lote ser aceito
+
+\dotfill
+
+### Questão 17
+
+Prove que, quando $n \to \infty$ e $p \to 0$, mas de tal sorte que $np \to \lambda$, temos
+
+$\binom{n}{k}p^k(1 - p)^{n-k} \to \dfrac{e^{-\lambda}\lambda^k}{k!}$
+
+Sugestão: use o fato $(1 - \frac{\lambda}{n})^n \to e^{-\lambda}$ quando $n \to \infty$ 
+
+$E(x) = np = \lambda$
+
+$p = \dfrac{\lambda}{n}$
+
+$1 - p = 1 - \dfrac{\lambda}{n} = \dfrac{n}{n} - \dfrac{\lambda}{n} = \dfrac{n - \lambda}{n}$
+
+Considerando $n \to \infty$
+
+$\lim_{n\to\infty} \binom{n}{k}p^k(1-p)^{n-k}$
+
+$\lim_{n\to\infty} \dfrac{n!}{k!(n-k)!}\left(\dfrac{\lambda}{n}\right)^k\left(\dfrac{n-\lambda}{n}\right)^{n-k}$
+
+$\dfrac{n!}{k!(n-k)!} = \dfrac{n(n-1)(n-2)\ldots(n-k+1)(n-k)!}{k!(n-k)!} = \dfrac{n(n-1)(n-1)\ldots(n-k+1)}{k!}$
+
+$\lim_{n\to\infty} \dfrac{n(n-1)(n-2)\ldots(n-k+1)}{k!}\left(\dfrac{\lambda}{n}\right)^k\left(\dfrac{n-\lambda}{n}\right)^{n-k}$
+
+$\lim_{n\to\infty} \dfrac{n(n-1)(n-2)\ldots(n-k+1)}{k!}\left(\dfrac{\lambda^k}{n^k}\right)\left(\dfrac{n-\lambda}{n}\right)^{n-k}$
+
+$\lim_{n\to\infty} \dfrac{\lambda^k n(n-1)(n-2)\ldots(n-k+1)}{k!}\left(\dfrac{1}{n}\right)^k\left(\dfrac{n-\lambda}{n}\right)^{n-k}$
+
+$\lim_{n\to\infty} \dfrac{\lambda^k}{k!}n(n-1)(n-2)\ldots(n-k+1)\left(\dfrac{1}{n}\right)^k\left(\dfrac{n-\lambda}{n}\right)^{n-k}$
+
+$\lim_{n\to\infty} \dfrac{\lambda^k}{k!}\dfrac{n(n-1)(n-2)\ldots(n-k+1)}{n^k}\left(\dfrac{n-\lambda}{n}\right)^{n-k}$
+
+\dotfill
+
+### Questão 18
+
+Suponha que um mecanismo eletrônico tenha um tempo de vida $X$ (em 1000 horas) que possa ser considerado uma variável aleatória contínua com função de densidade $f(x) = e^{-x}, x > 0$. Suponha que o custo de fabricação de um item seja 2,00 reais e o preço de venda seja 5,00 reais. O fabricante garante total devolução se $X \leq 0.9$. Qual o lucro esperado por item?
+
+$X$: tempo de vida do equipamento
+
+$P(X \leq 0.9) = \displaystyle\int_0^{0.9} e^{-x} dx$
+
+$\displaystyle\int_0^{0.9} e^{-x} dx$
+
+$u = -x$
+
+$du = -1 dx \implies dx = -du$
+
+$\displaystyle\int_0^{0.9} e^{-x} dx \implies -1\displaystyle\int_0^{0.9} e^{u} du = -e^{-0.9} - [-e^{-0}] = 0.5934303$
+
+$P(X \leq 0.9) = 0.5934303$ é a probabilidade do fabricante realizar integralmente a devolução \newline
+
+Lucro/prejuízo por item vendido (ok): $5 - 2 = 3$
+
+Lucro/prejuízo por item vendido (defeituoso): $-2$
+
+$E(X) = -2(0.5934303) + 3(1 - 0.5934303) = 0.0328485$
+
+Lucro esperado: 0,3 centavos por item
+
+\dotfill
+
+### Questão 19
+
+Pequenos motores elétricos são expedidos em lotes de 50 unidades. Antes que uma remessa seja aprovada, um inspector escolhe 5 desses motores e os inspeciona. Se nenhum dos motores inspecionados for defeituoso, o lote é aprovado. Se um ou mais forem verificados defeituosos, todos os motores da remessa são inspecionados. Suponha que exista, de fato, 3 motores defeituosos no lote. Qual é a probabilidade de que a inspeção total seja necessária? \newline
+
+Distribuição Hipergeométrica:
+
+$P(X >= 1) = 1 - P(X = 0) = 1 - \dfrac{\binom{K}{x}\binom{M - K}{n - x}}{\binom{M}{n}}$
+
+$P(X >= 1) = 1 - P(X = 0) = 1 - \dfrac{\binom{3}{0}\binom{50 - 3}{5 - 0}}{\binom{50}{5}}$
+
+$P(X >= 1) = 1 - P(X = 0) = 1 - \dfrac{\binom{3}{0}\binom{47}{5}}{\binom{50}{5}}$
+
+$\binom{3}{0} = \dfrac{3!}{0!(3-0)!} = 1$
+
+$\binom{47}{5} = \dfrac{47!}{5!(47-5)!} = \dfrac{47\times46\times45\times44\times43}{5!} = 1533939$
+
+$\binom{50}{5} = \dfrac{50!}{5!45!} = \dfrac{50\times49\times48\times47\times46}{5!} = 2118760$
+
+$P(X >= 1) = 1 - P(X = 0) = 1 - \dfrac{1533939}{2118760} = 0.2760204$
+
+\dotfill
+
+### Questão 20
+
+Suponha que o custo de realização de um experimento seja de 1000 reais. Se o experimento falhar, ocorrerá um custo adicional de 300 reais em virtude de serem necessárias algumas alterações antes que a próxma tentativa seja executada. Se a probabilidade de sucesso em uma tentativa qualquer foi de 0,20, se as provas forem independentes, e se os experimentos continuarem até que o primeiro resultado exitoso seja alcançado, qual será o custo esperado do procedimento completo?
+
+$X$: número de falhas até o primeiro sucesso.
+
+$p = 0.2$
+
+Distribuição Geométrica
+
+Esperança: 
+
+$E(X) = \dfrac{1 - p}{p} = \dfrac{0.8}{0.2} = 4$
+
+Custo total:
+
+$E(X) \times 1300 + 1000 = 6200$
+
+
+
+\begin{multline*}
+D(c,d|y)= -2 \biggl\{ \left[nlog(c_0d_0)-(c_0+1)\sum\limits_{i=1}^nlog(y_i)-(d_0+1)\sum\limits_{i=1}^n(1+y_i^{-c_0})\right]-\\ 
+\left[nlog(\hat{c}\hat{d})-(\hat{c}+1)\sum\limits_{i=1}^nlog(y_i)-(\hat{d}+1)\sum\limits_{i=1}^n(1+y_i^{-\hat{c}})\right] \biggl\}
+\end{multline*}
+
+
+
+
+
+
+
+
+

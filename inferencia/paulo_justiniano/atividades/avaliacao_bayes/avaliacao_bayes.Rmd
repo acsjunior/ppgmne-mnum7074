@@ -1,0 +1,636 @@
+---
+title: |
+  | Universidade Federal do Paraná
+  | Mestrado em Métodos Numéricos em Engenharia
+  | Avaliação de Inferência Bayesiana
+  | Prof. Paulo Justiniano
+author: "Antonio C. da Silva Júnior"
+output: 
+  bookdown::pdf_document2:
+    toc: false
+    pandoc_args: ["--natbib"]
+    includes:
+      in_header: header.tex
+date: '12/09/2022'
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+library(kableExtra)
+
+oldSource <- knit_hooks$get("source")
+
+knit_hooks$set(source = function(x, options) {
+  x <- oldSource(x, options)
+  x <- ifelse(!is.null(options$ref), paste0("\\label{", options$ref,"}", x), x)
+  ifelse(!is.null(options$codecap), paste0("\\captionof{chunk}{", options$codecap,"}", x), x)
+})
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+
+options(scipen = 999, knitr.table.format = "latex")
+
+theme_set(theme_bw())
+```
+
+# Questão 1
+
+Suponha que os maiores partidos da Inglaterra, "Labour", "Conservative", "LibDems", obtiveram 35, 42, e 20% dos votos em uma eleição recente. O restante foi distribuído entre partidos menores. Tem-se ainda que os percentuais de favoráveis ao BREXIT em cada um destes partidos é de 15, 62 e 40%, respectivamente. Não se sabe sobre os demais mas assume-se que seja de 50%. Entrevistou-se uma pessoa que se declarou favorável ao BREXIT. Qual a probabilidade de que ela seja apoiadora do "Labour"? E dos "LibDem"?
+
+$A$: apoiador do Labour
+
+$B$: apoiador do Conservative
+
+$C$: apoiador do LibDem
+
+$D$: apoiador de outros partidos
+
+$E$: favorável ao BREXIT
+
+\hfill
+
+$P(A) = 0.35$
+
+$P(B) = 0.42$
+
+$P(C) = 0.20$
+
+$P(D) = 1 - P(A) - P(B) - P(C) = 0.03$
+
+\hfill
+
+$P(E \mid A) = 0.15$
+
+$P(E \mid B) = 0.62$
+
+$P(E \mid C) = 0.40$
+
+$P(E \mid D) = 0.50$
+
+\hfill
+
+$P(E \cap A) = P(E \mid A)P(A) = 0.15 \times 0.35 = 0.0525$
+
+$P(E \cap B) = P(E \mid B)P(B) = 0.62 \times 0.42 = 0.2604$
+
+$P(E \cap C) = P(E \mid C)P(C) = 0.40 \times 0.20 = 0.08$
+
+$P(E \cap D) = P(E \mid D)P(D) = 0.50 \times 0.03 = 0.015$
+
+\hfill
+
+$P(E) = P(E \cap A) + P(E \cap B) + P(E \cap C) + P(E \cap D) = 0.4079$
+
+\hfill
+
+$P(A \mid E) = \dfrac{P(E \mid A)P(A)}{P(E)} = \dfrac{P(E \cap A)}{P(E)} = \dfrac{0.0525}{0.4079} = 0.128708$
+
+$P(C \mid E) = \dfrac{P(E \mid C)P(C)}{P(E)} = \dfrac{P(E \cap C)}{P(E)} = \dfrac{0.08}{0.4079} = 0.1961265$
+
+\hfill
+
+Portanto, 0.129 é a probabilidade de que a pessoa entrevistada seja apoiadora do Labour, e 0.197 é a probabilidade de que seja apoiadora do LibDem.
+
+\hfill
+\hfill
+
+# Questão 2
+
+No contexto do problema anterior:
+
+a. Escreva os dados e quantidades de interesse na notação geral de variável observada $Y$ e parâmetro $\theta$.
+
+b. Forneça a distribuição a priori do problema.
+
+c. Forneça a verossimilhança do problema.
+
+d. Encontre a distribuição a posteriori.
+
+e. Esboce um gráfico com distribuições priori e posteriori.
+
+## Dados e quantidades
+
+```{r}
+partido <- c("Labour", "Conservative", "LibDem", "Outros")
+indice <- 1:length(partido)
+ymidtheta <- c(0.15, 0.62, 0.4, 0.5)
+
+data.frame(indice, partido, ymidtheta) %>%
+  kbl(escape = F, booktabs = T, col.names = c('', 'Partido ($\\theta_i$)', 'Favorável BREXIT ($y$)')) %>%
+  kable_classic(full_width = F, html_font = "Cambria", latex_options = "HOLD_position")
+```
+
+## Priori e verossimilhança
+
+```{r}
+theta <- c(0.35, 0.42, 0.2, 0.03)
+
+data.frame(indice, theta, ymidtheta) %>%
+  kbl(escape = F, booktabs = T, col.names = c('', '$f(\\theta_i)$', '$f(y \\mid \\theta_i)$')) %>%
+  kable_classic(full_width = F, html_font = "Cambria", latex_options = "HOLD_position")
+```
+
+
+## Posteriori
+
+$$f(\theta_i \mid y) = \dfrac{f(y \mid \theta_i)f(\theta_i)}{f(y)}$$
+
+Em que
+
+$$f(y) = \sum\limits_{i=1}^4 f(y, \theta_i)$$
+
+```{r}
+y_theta <- ymidtheta * theta
+
+y <- sum(y_theta)
+
+data.frame(y) %>%
+  kbl(escape = F, booktabs = T, col.names = c('$f(y)$')) %>%
+  kable_classic(full_width = F, html_font = "Cambria", latex_options = "HOLD_position")
+```
+
+e
+
+```{r}
+data.frame(indice, y_theta) %>%
+  kbl(escape = F, booktabs = T, col.names = c('', '$f(y \\mid \\theta_i)f(\\theta_i)$')) %>%
+  kable_classic(full_width = F, html_font = "Cambria", latex_options = "HOLD_position")
+```
+
+Portanto,
+
+```{r}
+thetamidy <- y_theta / y
+
+data.frame(indice, thetamidy) %>%
+  kbl(escape = F, booktabs = T, col.names = c('', '$f(\\theta_i \\mid y)$')) %>%
+  kable_classic(full_width = F, html_font = "Cambria", latex_options = "HOLD_position")
+```
+
+## Gráficos
+
+```{r}
+partidos <- ordered(1:4, levels=1:4, labels=partido)
+data.frame(theta, partidos) %>%
+  ggplot(aes(x=partidos, y=theta)) +
+  geom_col(position = 'dodge', width = 0.3, fill='tomato', alpha=0.7) +
+  labs(title = 'Priori', x = expression(theta), y = expression(f(theta)))
+```
+
+```{r}
+data.frame(thetamidy, partidos) %>%
+  ggplot(aes(x=partidos, y=thetamidy)) +
+  geom_col(position = 'dodge', width = 0.3, fill='tomato', alpha=0.7) +
+  labs(title = 'Posteriori', x = expression(theta), y = expression(paste(f, "(", theta, "|", y, ")")))
+```
+\hfill
+\hfill
+
+# Questão 3
+
+Seja $X_1, \ldots X_n$ uma amostra aleatória de uma distribuição com função de probabilidades:
+
+$$f(x \mid \theta) = \theta \exp \left\{ -\theta x\right\} \text{, com } x > 0 \text{ e } \theta > 0 \text{.}$$
+Suponha o modelo a priori de Jeffreys para $\theta$ (ou seja, $\pi(\theta) \propto 1/\theta \text{, } \theta > 0$). Com isso, considere o teste de hipóteses: $H_0: \theta \leq 1 \text{ vs } H_1: \theta > 1$.
+
+a. Obtenha o modelo a posteriori de $\theta$, e expresse o estimador de Bayes sob perda quadrática para $\theta$.
+
+b. Obtenha a expressão da distribuição preditiva.
+
+c. Supondo $\sum_{i=1}^n x_i = 1.5$, decida sobre $H_0$ contra $H_1$ considerando a seguinte estrutura de perda:
+
+```{r}
+L <- c('$\\theta \\leq 1$', '$\\theta > 1$')
+thetaleq1 <- c(0, 1)
+thetagt1 <- c(1, 0)
+
+data.frame(L, thetaleq1, thetagt1) %>%
+  kbl(escape = F, booktabs = T, col.names = c('$L(\\theta, a)$', '$\\theta \\leq 1$', '$\\theta > 1$')) %>%
+  kable_classic(full_width = F, html_font = "Cambria", latex_options = "HOLD_position") %>%
+  add_header_above(c(" " = 1, "Decisão" = 2))
+```
+
+## Posteriori de $\theta$ e estimador de Bayes
+
+\textbf{Verossimilhança}:
+
+$L(\theta \mid \mathbf{x}) = \prod\limits_{i=1}^n f(x_i \mid \theta)$
+
+$L(\theta \mid \mathbf{x}) = \prod\limits_{i=1}^n \theta \exp \left\{ -\theta x_i \right\}$
+
+$L(\theta \mid \mathbf{x}) = \theta^n \prod\limits_{i=1}^n \exp \left\{ -\theta x_i \right\}$
+
+$L(\theta \mid \mathbf{x}) = \theta^n \exp \left\{ - \theta \sum_{i=1}^n x_i \right\}$
+
+\hfill
+
+\textbf{Posteriori}:
+
+$f(\theta \mid \mathbf{x}) = L(\theta \mid \mathbf{x}) \pi(\theta)$
+
+$f(\theta \mid \mathbf{x}) = \theta^n \exp \left\{ - \theta \sum_{i=1}^n x_i \right\} \dfrac{1}{\theta}$
+
+$f(\theta \mid \mathbf{x}) = \theta^{n-1} \exp \left\{ - \theta \sum_{i=1}^n x_i \right\}$
+
+\hfill
+
+\textbf{Estimador de Bayes}:
+
+$\rho(a, x) = \displaystyle\int L(\theta, a) f(\theta \mid \mathbf{x}) d\theta$
+
+$L(\theta, a) = (\theta - a)^2 \implies \rho(a, x) = \displaystyle\int (\theta - a)^2 \theta^{n-1} \exp \{ - \theta \sum_{i=1}^n x_i \} d\theta$
+
+## Distribuição preditiva
+
+Assumindo que 
+
+  * $X_1, \ldots X_n$ são independentes;
+  * $\theta \mid x \sim Ga(n, \sum_{i=1}^n x_i)$.
+
+$f(x_p \mid \mathbf{x}) = \displaystyle\int f(x_p \mid \theta) f(\theta \mid \mathbf{x}) d\theta$
+
+$f(x_p \mid \mathbf{x}) = \displaystyle\int \theta \exp \{ - \theta x_p \} \dfrac{(\sum_{i=1}^n x_i)^n}{\Gamma(n)} \theta^{n-1} \exp \{ - \theta \sum_{i=1}^n x_i \} d\theta$
+
+$f(x_p \mid \mathbf{x}) = \displaystyle\int \dfrac{(\sum_{i=1}^n x_i)^n}{\Gamma(n)} \theta^n \exp \{ - \theta x_p - \theta \sum_{i=1}^n x_i \} d\theta$
+
+$f(x_p \mid \mathbf{x}) = \dfrac{(\sum_{i=1}^n x_i)^n}{\Gamma(n)} \displaystyle\int \theta^n \exp \{ - \theta  (x_p + \sum_{i=1}^n x_i) \}  d\theta$
+
+Observa-se que $\theta^n \exp \{ - \theta  (x_p + \sum_{i=1}^n x_i) \}$ corresponde ao núcleo de uma $Ga(\alpha=n + 1, \beta=x_p + \sum_{i=1}^n x_i)$
+
+Sabendo que $\displaystyle\int_0^{\infty} \dfrac{\beta^\alpha}{\Gamma(\alpha)} \exp \left\{ -\theta \beta \right\} \theta^{\alpha-1} = 1$
+
+Temos, 
+
+$\dfrac{\beta^\alpha}{\Gamma(\alpha)} \displaystyle\int_0^{\infty} \exp \left\{ -\theta \beta \right\} \theta^{\alpha-1} = 1$
+
+$\displaystyle\int_0^{\infty} \exp \left\{ -\theta \beta \right\} \theta^{\alpha-1} = \dfrac{\Gamma(\alpha)}{\beta^\alpha} = \dfrac{\Gamma(n + 1)}{(x_p + \sum_{i=1}^n x_i)^{n + 1}}$
+
+Portanto,
+
+$f(x_p \mid \mathbf{x}) = \dfrac{(\sum_{i=1}^n x_i)^n}{\Gamma(n)} \displaystyle\int \theta^n \exp \{ - \theta  (x_p + \sum_{i=1}^n x_i) \}  d\theta$
+
+$f(x_p \mid \mathbf{x}) = \dfrac{(\sum_{i=1}^n x_i)^n}{\Gamma(n)} \times \dfrac{\Gamma(n + 1)}{(x_p + \sum_{i=1}^n x_i)^{n + 1}}$
+
+$f(x_p \mid \mathbf{x}) = \dfrac{(\sum_{i=1}^n x_i)^n}{(x_p + \sum_{i=1}^n x_i)^{n + 1}} \times \dfrac{\Gamma(n + 1)}{\Gamma(n)}$
+
+$f(x_p \mid \mathbf{x}) = \dfrac{(\sum_{i=1}^n x_i)^n}{(x_p + \sum_{i=1}^n x_i)^{n + 1}} \times \dfrac{n\Gamma(n)}{\Gamma(n)}$
+
+$f(x_p \mid \mathbf{x}) = \dfrac{n(\sum_{i=1}^n x_i)^n}{(x_p + \sum_{i=1}^n x_i)^{n + 1}}$
+
+## Decisão sobre $H_0$ contra $H_1$
+
+Considerando $\theta \in \Theta$, em que
+
+$\Theta = \Theta_0 \cup \Theta_1$
+
+$\Theta_0 = \{\theta \mid 0 < \theta \leq 1 \}$
+
+$\Theta_1 = \{ \theta \mid \theta > 1 \}$
+
+\textbf{Teste de hipóteses}:
+
+$H_0: \theta \in \Theta_0$
+
+$H_1: \theta \in \Theta_1$
+
+\textbf{Estrutura de perda}:
+
+```{r}
+L <- c('$\\theta \\in \\Theta_0$', '$\\theta \\in \\Theta_1$')
+Theta0 <- c("0", "$\\alpha$")
+Theta1 <- c("$\\beta$", "1")
+
+data.frame(L, Theta0, Theta1) %>%
+  kbl(escape = F, booktabs = T, col.names = c('$L(\\theta, a)$', '$\\theta \\in \\Theta_0$', '$\\theta \\in \\Theta_1$')) %>%
+  kable_classic(full_width = F, html_font = "Cambria", latex_options = "HOLD_position") %>%
+  add_header_above(c(" " = 1, "Decisão" = 2))
+```
+
+Se $P(\theta \in \Theta_0 \mid \mathbf{x}) > \dfrac{\beta}{\alpha + \beta}$, então $H_0$ é preferível a $H_1$. 
+
+Desenvolvimento:
+
+$P(\theta \in \Theta_0 \mid \mathbf{x}) = \displaystyle \int_{0}^1 f(\theta \mid \mathbf{x}) d \theta$
+
+$P(\theta \in \Theta_0 \mid \mathbf{x}) = \displaystyle \int_{0}^1 \theta^{n-1} \exp \{ - \theta \sum_{i=1}^n x_i \} d \theta$
+
+$P(\theta \in \Theta_0 \mid \mathbf{x}) = \displaystyle \int_{0}^1 \theta^{n-1} \exp \{ - 1.5 \theta \} d \theta$
+
+$P(\theta \in \Theta_0 \mid \mathbf{x}) = \displaystyle \int_{0}^1 Ga(n, 1.5) d \theta$
+
+Portanto, se o valor do parâmetro $n$ resultar em $P(\theta \in \Theta_0 \mid X) > 1/2$, conclui-se que $H_0$ é preferível a $H_1$.
+
+## Atividade adicional
+
+Supondo $\sum_{i=1}^n x_i = 1.5$ e $n = 10$, traçar os gráficos da priori, verossimilhança, posteriori e preditiva.
+
+```{r, echo=TRUE, codecap = "Construção do gráfico da priori, verossimilhança e posteriori"}
+library(tidyverse)
+
+n <- 10
+beta <- 1.5
+
+THETA <- seq(0.01, 20, 0.01)
+df_plot <- data.frame(THETA)
+df_plot$Priori <- 1/THETA
+df_plot$`Verossimilhança` <- dgamma(THETA, n+1, beta)
+df_plot$Posteriori <- dgamma(THETA, n, beta)
+
+df_plot %>%
+  pivot_longer(!THETA, names_to = 'distr', values_to = 'value') %>%
+  ggplot(aes(x=THETA, y=value, color=distr)) +
+  geom_line() +
+  ylim(0, 0.30) +
+  labs(x = expression(theta), y='', color='') +
+  theme(legend.position="bottom")
+
+```
+
+```{r, echo=TRUE, codecap = "Construção do gráfico da preditiva"}
+library(tidyverse)
+
+X <- seq(0, 1, 0.01)
+
+f_pred <- function(x) (n * sum_x^n) / (x + sum_x)^(n+1) 
+
+n <- 10
+sum_x <- 1.5
+
+data.frame(X, pred=f_pred(X)) %>%
+  ggplot(aes(x=X, y=pred)) +
+  geom_line() +
+  labs(x = expression(x["p"]), y=expression(paste(f, "(", x["p"], "|", x, ")")))
+```
+
+\hfill
+\hfill
+
+# Questão 4
+
+Considere os dados (iid) $y = (y_1, \ldots, y_n)$ das taxas de sucesso no primeiro saque de um jogador de tênis em $n$ jogos de um campeonato. Assuma o modelo $Y \mid \theta \sim f(y_i \mid \theta) = \theta(\theta + 1)y_i^{\theta - 1} (1 - y_i)$ com $y_i \in (0,1)$ e $\theta > 0$. Não existe uma família conjugada usual para este modelo e adota-se uma priori gama $\theta \sim Ga(1,1)$. Foram obtidos dados tal que $n = 20$, $\sum_i \log(y_i) = -4.59$. Obtenha a expressão da posteriori e discuta como obter inferências (bayesianas) de interesse, incluindo resumos da posteriori e preditivas. Discuta e explique procedimentos e passos adotados em situações em que não há expressões analíticas (fechadas)
+
+\hfill
+
+\textbf{Priori}:
+
+Sabendo que $\theta \sim Ga(1,1)$, temos
+
+$f(\theta) = \dfrac{\beta^\alpha}{\Gamma(\alpha)}  \theta^{\alpha-1} \exp \left\{ -\beta \theta \right\}$
+
+$f(\theta) = \dfrac{1^1}{\Gamma(1)}  \theta^{1-1} \exp \left\{ -1 \theta \right\}$
+
+$f(\theta) = \exp \left\{ -\theta \right\}$
+
+\hfill
+
+\textbf{Verossimilhança}:
+
+$L(\theta \mid \mathbf{y}) = \prod\limits_{i=1}^n \theta(\theta + 1)y_i^{\theta - 1} (1 - y_i)$
+
+$L(\theta \mid \mathbf{y}) = \theta^n (\theta + 1)^n \prod\limits_{i=1}^n y_i^{\theta - 1} (1 - y_i)$
+
+$L(\theta \mid \mathbf{y}) = \theta^n (\theta + 1)^n \prod\limits_{i=1}^n y_i^{\theta} y_i^{ - 1} (1 - y_i)$
+
+$L(\theta \mid \mathbf{y}) = \theta^n (\theta + 1)^n \prod\limits_{i=1}^n y_i^{\theta} \prod\limits_{i=1}^n y_i^{ - 1} (1 - y_i)$
+
+$L(\theta \mid \mathbf{y}) \propto \theta^n (\theta + 1)^n \prod\limits_{i=1}^n y_i^{\theta}$
+
+$L(\theta \mid \mathbf{y}) \propto \theta^n (\theta + 1)^n \exp \left\{ \log \left( \prod\limits_{i=1}^n y_i^{\theta} \right) \right\}$
+
+$L(\theta \mid \mathbf{y}) \propto \theta^n (\theta + 1)^n \exp \left\{\sum\limits_{i=1}^n \log(y_i^{\theta}) \right\}$
+
+$L(\theta \mid \mathbf{y}) \propto [\theta(\theta + 1)]^n \exp \left\{\theta \sum\limits_{i=1}^n \log(y_i) \right\}$
+
+$L(\theta \mid \mathbf{y}) \propto (\theta^2 + \theta)^n \exp \left\{\theta \sum\limits_{i=1}^n \log(y_i) \right\}$
+
+\hfill
+
+\textbf{Posteriori}:
+
+$f(\theta \mid y) \propto L(\theta \mid y) f(\theta)$
+
+$f(\theta \mid y) \propto (\theta^2 + \theta)^n  \exp \left\{ \theta \sum\limits_{i=1}^n \log \left( y_i \right) \right\} \times  \exp \left\{ -\theta \right\}$
+
+$f(\theta \mid y) \propto (\theta^2 + \theta)^n  \exp \left\{ -\theta + \theta \sum\limits_{i=1}^n \log \left( y_i \right) \right\}$
+
+$f(\theta \mid y) \propto (\theta^2 + \theta)^n  \exp \left\{ -\theta \left [1 - \sum\limits_{i=1}^n \log \left( y_i \right) \right] \right\}$
+
+\hfill
+
+A obtenção de inferências, bem como medidas resumo da posteriori é preditiva, neste caso que a distribuição posteriori não se apresenta na forma de uma distribuição conhecida, depende de uma abordagem baseada em simulação ou (hoje menos utilizada) por meio de uma aproximação Normal.
+
+Abaixo demonstro de forma simplificada como obter amostras e resumo da posteriori via aproximação Normal.
+
+O primeiro passo, baseado nas informações sobre os dados mencionada no enunciado ($n = 20$ e $\sum_i \log(y_i) = -4.59$), foram simuladas 20 amostras:
+
+```{r, ref = "sym_y", echo=TRUE, codecap = "Amostras simuladas"}
+y <- c(0.796001, 0.8991, 0.795701, 0.8080, 
+       0.907901, 0.796001, 0.90102, 0.5068, 
+       0.7180, 0.9569, 0.893201, 0.8939, 0.6889,
+       0.7989, 0.9129, 0.6886, 0.681901, 0.7992, 
+       0.965001, 0.6699)
+```
+
+```{r, echo=TRUE, codecap = "Soma dos logs de y"}
+sum(log(y))
+```
+
+```{r, echo=TRUE, codecap = "Número de amostras em y"}
+length(y)
+```
+
+Observou se que a $f(y_i \mid \theta)$ informada no enunciado corresponde à densidade de uma $\text{Beta}(\theta, 2)$, conforme a demonstração abaixo:
+
+\hfill
+
+Seja $Y \sim B(\alpha, \beta)$
+
+$f(y; \alpha, \beta) = \dfrac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)} y^{\alpha-1} (1-y)^{\beta-1}$
+
+Considerando $\alpha = \theta$ e $\beta = 2$, temos
+
+$f(y; \alpha, \beta) = \dfrac{\Gamma(\theta + 2)}{\Gamma(\theta)\Gamma(2)} y^{\theta-1} (1-y)^{2-1}$
+
+$f(y; \alpha, \beta) = \dfrac{\Gamma(\theta + 1 + 1)}{\Gamma(\theta)\Gamma(1 + 1)} y^{\theta-1} (1-y)$
+
+Considerando $z = \theta+1$
+
+$f(y; \alpha, \beta) = \dfrac{\Gamma(z + 1)}{\Gamma(\theta)\Gamma(1 + 1)} y^{\theta-1} (1-y)$
+
+$f(y; \alpha, \beta) = \dfrac{z\Gamma(z)}{\Gamma(\theta) \cdot 1\Gamma(1)} y^{\theta-1} (1-y)$
+
+$f(y; \alpha, \beta) = \dfrac{(\theta+1)\Gamma(\theta+1)}{\Gamma(\theta)} y^{\theta-1} (1-y)$
+
+$f(y; \alpha, \beta) = \dfrac{(\theta+1) \theta \Gamma(\theta)}{\Gamma(\theta)} y^{\theta-1} (1-y)$
+
+$f(y; \alpha, \beta) = \theta(\theta+1) y^{\theta-1} (1-y)$
+
+\hfill
+
+Sendo assim, na construção da função de verossimilhança considerou-se $Y \mid \theta \sim \text{Beta}(\theta, 2)$.
+
+```{r, ref="funcs", echo=TRUE, codecap = "Construção das funções priori, verossimilhança e posteriori"}
+# Priori:
+prio <- function(par) exp(-par)
+
+# Verossimilhança:
+L <- function(par, x=y) {
+  out <- prod(dbeta(x=y, shape1 = par, shape2 = 2))
+  return(out)
+}
+
+# Posteriori:
+post <- function(par) log(L(par) * prio(par))
+```
+
+Em seguida, encontra-se numericamente o $\theta$ que maximiza a função posteriori, bem como o hessiano, para obter $\mu$ e $\sigma$ da Normal.
+
+```{r, echo=TRUE, codecap = "Obtenção da média e desvio padrão da Normal"}
+theta_hat_p <- optimize(post, interval = c(0, 60), maximum = TRUE)$maximum
+theta_hess_p <- optimHess(theta_hat_p, post)[1]
+
+mu <- theta_hat_p
+sigma <- sqrt((-theta_hess_p)^-1)
+```
+
+Por fim, o código para a visualização das curvas da Priori, Verossimilhança e Posteriori na escala 0, 1 para melhorar a visualização.
+
+```{r, echo=TRUE, codecap = "Construção do gráfico da priori, verossimilhança e posteriori"}
+library(tidyverse)
+
+THETA <- seq(1, 12, 0.01)
+df_plot <- data.frame(THETA)
+df_plot$Priori <- dgamma(THETA, 1, 1)
+df_plot$`Verossimilhança` <- as.numeric(lapply(df_plot$THETA, L))
+df_plot$Posteriori <- dnorm(THETA, mean=mu, sd=sigma)
+
+#Escalonamento dos dados para visualização gráfica:
+df_plot$Priori <- (
+  df_plot$Priori - min(df_plot$Priori)) / (
+    max(df_plot$Priori) - min(df_plot$Priori))
+
+df_plot$`Verossimilhança` <- (
+  df_plot$`Verossimilhança` - min(df_plot$`Verossimilhança`)) / (
+    max(df_plot$`Verossimilhança`) - min(df_plot$`Verossimilhança`))
+
+df_plot$Posteriori <- (
+  df_plot$Posteriori - min(df_plot$Posteriori)) / (
+    max(df_plot$Posteriori) - min(df_plot$Posteriori))
+
+df_plot %>%
+  pivot_longer(!THETA, names_to = 'distr', values_to = 'value') %>%
+  ggplot(aes(x=THETA, y=value, color=distr)) +
+  geom_line() +
+  labs(x = expression(theta), y='', color='', title='Valores escalonados') +
+  theme(legend.position="bottom")
+```
+
+Uma vez que a Posteriori foi aproximada pela Normal, pode-se facilmente obter as medidas de resumo:
+
+```{r, echo=TRUE, codecap = "Obtenção das medidas de resumo da posteriori aproximada pela Normal"}
+list(
+  media=round(theta_hat_p, 4),
+  mediana=round(theta_hat_p, 4),
+  `IC 95%`=round(qnorm(c(0.025, 0.975), mean = mu, sd = sigma),4))
+```
+
+## Atividade adicional
+
+Usando algum algoritmo para obter amostras da posteriori e preditiva (com respectivos gráficos de densidade) e resumos (média e intervalo de credibilidade).
+
+\hfill
+
+Para obtenção das amostras e medidas de resumo da posterori utilizou-se um algoritmo baseado nos métodos de Monte Carlo via Cadeias de Markov.
+
+O primeiro passo é definir o número de amostras que deseja-se simular, um valor inicial para $\theta$ e o tamanho da janela de busca.
+
+```{r, echo=TRUE, codecap = "Definições iniciais para a simulação de amostras da posteriori"}
+n <- 100000
+theta_ini <- 1
+window <- 1
+
+theta_sampled <- numeric(n)
+theta_sampled[1] <- theta_ini
+selected <- 0
+```
+
+Em seguida, utilizando as 20 amostras simuladas no \ref{sym_y}, e as funções construídas no \ref{funcs}, realiza-se o processo iterativo de amostragem.
+
+```{r, echo=TRUE, codecap = "Processo iterativo de amostragem da posteriori"}
+set.seed(1000)
+
+for (i in 2:n) {
+  theta_old <- theta_sampled[i-1]
+  theta_new <- runif(1, min=theta_old-window, max=theta_old+window)
+  alpha <- min(1, exp(post(theta_new) - post(theta_old)))
+  if (runif(1) <= alpha) {
+    theta_sampled[i] <- theta_new
+    selected <- selected+1
+  } else {
+    theta_sampled[i] <- theta_old
+  }
+}
+```
+
+```{r, echo=FALSE, codecap = "Construção do gráfico da densidade da posteriori simulada"}
+library(tidyverse)
+
+data.frame(theta_sampled) %>%
+  ggplot(aes(x=theta_sampled)) +
+  geom_density(color='tomato') +
+  labs(x=expression(theta), y='', title='Posteriori simulada')
+```
+
+Por fim, a obtenção das medidas de resumo da posteriori simulada.
+
+```{r, echo=TRUE, codecap = "Obtenção das medidas de resumo da posteriori simulada"}
+library(coda)
+
+list(
+  media=round(mean(theta_sampled), 4),
+  mediana=round(median(theta_sampled), 4),
+  `IC 95%`=round(quantile(theta_sampled, probs = c(0.025, 0.975)),4),
+  `IC 95% HPD`=round(HPDinterval(as.mcmc(theta_sampled)), 4))
+```
+
+Para obtenção das amostras e medidas de resumo da preditiva, o primeiro passo é definir o tamanho amostra e o $y_p$ inicial.
+
+```{r, echo=TRUE, codecap = "Definições iniciais para a simulação de amostras da preditiva"}
+n <- 100000
+y_ini <- 0.01
+
+y_sampled <- numeric(n)
+y_sampled[1] <- y_ini
+selected <- 0
+```
+
+```{r, echo=TRUE, codecap = "Processo iterativo de amostragem da preditiva"}
+set.seed(1000)
+
+for (i in 2:n) {
+  theta <- sample(theta_sampled, 1) # sorteia um valor de theta a partir dos thetas simulados
+  y_sampled[i] <- rbeta(1, theta, 2) # sorteia uma valor de y com base no theta sorteado
+}
+```
+
+```{r, echo=TRUE, codecap = "Construção do gráfico da densidade da preditiva simulada"}
+library(tidyverse)
+
+data.frame(y_sampled) %>%
+  ggplot(aes(x=y_sampled)) +
+  geom_density() +
+  labs(x=expression(y), y='', title='Preditiva simulada')
+```
+
+```{r, echo=TRUE, codecap = "Obtenção das medidas de resumo da preditiva simulada"}
+library(coda)
+
+list(
+  media=round(mean(y_sampled), 4),
+  mediana=round(median(y_sampled), 4),
+  `IC 95%`=round(quantile(y_sampled, probs = c(0.025, 0.975)),4),
+  `IC 95% HPD`=round(HPDinterval(as.mcmc(y_sampled)), 4))
+```
+
+

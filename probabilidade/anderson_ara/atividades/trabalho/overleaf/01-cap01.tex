@@ -1,0 +1,241 @@
+\chapter{INTRODUÇÃO À PROBABILIDADE}
+%---------------------------------------------------------------------------------------
+
+Probabilidade é o estudo da aleatoriedade e da incerteza. Para chegarmos a uma definição mais sólida, é necessário definirmos antes conceitos de espaço amostral e eventos de um experimento. 
+
+Espaço amostral é o conjunto de todos os resultados possíveis de um experimento aleatório, e será representado pela letra $\Omega$ neste trabalho. Por exemplo, se um experimento consiste no lançamento de um dado, então o espaço amostral é formado por 6 elementos, que correspondem às faces do dado. Ou seja, $\Omega= \{1,2,3,4,5,6\}$. 
+
+Evento é um subconjunto do espaço amostral composto pelos resultados de interesse em um experimento. Por exemplo, no experimento do lançamento de um dado, se estamos interessados na occorrência de números pares, podemos dizer que o evento $A$ é composto pelos elementos $\{2,4,6\}$. E então observamos que $A \subset \Omega$.
+
+Dois ou mais eventos podem formar uniões, intersecções e complementos. Ainda com base no exemplo do lançamento to dados, adicionaremos o evento $B$, composto pelos elementos menores ou iguais a 3. Ou seja, $B = \{1,2,3 \}$.
+
+\begin{itemize}
+    \item A \textbf{união} entre $A$ e $B$ resulta em um novo evento contendo todos os elementos de $A$, $B$ ou de ambos. Por exemplo, $A \cup B = \{1,2,3,4,6\}$;
+    \item A \textbf{intersecção} entre $A$ e $B$ resulta em um novo evento contendo todos os elementos que estejam simultaneamente nos dois eventos. Por exemplo, $A \cap B = \{ 2\}$;
+    \item O \textbf{complemento} de $A$, é um evento composto pelos elementos que não estão presentes em $A$. Por exemplo, $A^c = \{1,3,5\}$.
+\end{itemize}
+
+Mais dois tipos de eventos são importantes para definirmos probabilidade: os independentes e os mutuamente exclusivos. $A$ e $B$ são independentes quando a probabilidade de ocorrência de $B$ não for condicional à probabilidade de ocorrência de $A$. Por exemplo, em um experimento composto pelo lançamento de duas moedas, a probabilidade de sair cara da segunda moeda não depende do resultado do primeiro lançamento. $A$ e $B$ são mutualmente exclusivos quando não podem ocorrer simultaneamente. Por exemplo, considerando o lançamento de um dado, o resultado não pode ser um número par e um número ímpar ao mesmo tempo.
+
+Na \textbf{definição clássica}, probabilidade é a razão do número de resultados favoráveis a um evento ($m$) e o número de casos possíveis ($n$). Por exemplo, em uma rifa com 100 números ($n$), a probabilidade de uma pessoa que assinou 2 números ($m$) ser sorteada é $2/100 = 0.02$. 
+
+Se fizermos uso da definição clássica para calcular, por exemplo, a probabilidade de sucesso de um foguete tripulado lançado à lua, sendo sucesso o foguete chegar à lua com os tripulantes vivos, teremos o seguinte: $\Omega = \{ 1, 0\}$, $A = \{ 1\}$, $P(A) = m/n = 1/2 = 0.5$, o que soa como um absurdo.
+
+A definição clássica é aplicada quando todos os casos possíveis são igualmente prováveis, o que não é verdade no exemplo do foguete. Podemos tentar por meio da \textbf{definição frequentista} de probabilidade. Se o lançamento do foguete for repetido $n$ vezes exatamente sob as mesmas condições, e $m$ for o número de sucessos entre as $n$ repetições. Então, se $n$ for suficientemente grande, $m/n$ é uma boa aproximação da probabilidade de sucesso. 
+
+Não parece uma boa ideia fazer uso da definição frequentista para calcular a probabilidade de sucesso no exemplo do foguete. No entanto, também existe a \textbf{definição axiomática} de probabilidade. Pela definição axiomática, a probabilidade do evento $A$ em um espaco amostral $\Omega$, denotada por $P(A)$, é um número real no qual os seguintes axiomas são obedecidos:
+
+\begin{enumerate}
+    \item $0 \leq P(A) \leq 1$;
+    \item $P(\Omega) = 1$;
+    \item Se $A$ e $B$ são eventos mutuamente exclusivos, $P(A \cup B) = P(A) + P(B)$.
+\end{enumerate}
+
+A definição axiomática não nos diz o que é probabilidade, nem como calculá-la, mas permite, por meio dos três axiomas apresentados, desenvolver uma série de propriedades para podermos calcular probabilidades de eventos complexos com base na probabilidade de eventos elementares. Portanto, retornando ao exemplo do foguete, mesmo sem nunca ter realizado tal experimento, é possível calcular a probabilidade de sucesso por meio das propriedades desenvolvidades a partir da definição axiomática.
+
+Ainda existe a \textbf{definição subjetiva} de probabilidade. Esta definição é adotada quando não temos outra forma de calcular a probabilidade. Por exmeplo, dois eleitores podem divergir quanto a probabilidade de um determinado governante ser bem-sucedido durante o governo. Esta divergência ocorre em função das estimativas, conceitos prévios e informações que cada um dos eleitores possuem.
+
+Sendo assim, probabilidade pode ser definida como a medida de informação ou crença sobre a ocorrência de um evento.
+
+\textbf{Nota}: \textit{Esta sessão foi estruturada com base nos livros de \textcite{Ross2010}, \textcite{Pinheiro2012} e \textcite{Favero2017}, e nas aulas do professor José Luiz Padilha (UFPR)}.
+
+\section{Variáveis Aleatórias}
+
+\textcite{Ross2010} explica o que são variáveis aleatórias por meio do seguinte exemplo: dado um experimento que consiste no lançamento de 3 moedas, com 0 representando cara e 1 representando coroa. Se $X$ representar o número de caras que aparecem no resultado, então $X$ é uma variável aleatória que pode assumir os valores 0 quando o resultado for $\{0,0,0\}$, 1 quando o resultado for $\{(0,0,1), (0,1,0), (1,0,0)\}$, 2 quando $\{(0,1,1), (1,0,1), (1,1,0)\}$ ou 3 quando \{(1,1,1)\}. As probabilidades de cada um dos resultados de $X$ ficam definidas como:
+
+\begin{itemize}
+    \item $P(X = 0) = \dfrac{m}{n} = \dfrac{1}{8}$;
+    \item $P(X = 1) = \dfrac{m}{n} = \dfrac{3}{8}$;
+    \item $P(X = 2) = \dfrac{m}{n} = \dfrac{3}{8}$;
+    \item $P(X = 3) = \dfrac{m}{n} = \dfrac{1}{8}$.
+\end{itemize} Observe que $P(\Omega) = P\left[ \bigcup\limits_{i=0}^3 (X = i)\right] = \sum\limits_{i=0}^3 P(X = i) = 1$.
+
+De acordo com \textcite{Ross2010}, geralmente, diante de um experimento, o pesquisador está interessado em alguma função do resultado e não especificamente no resultado em si. No exemplo anterior, o interesse está no número de caras e não nos resultados individuais que compõem a soma de caras. Estas funções reais definidas no espaço amostral são variáveis aleatórias.
+
+As variáveis aleatórias podem ser discretas ou contínuas. As variáveis aleatórias discretas assumem valores contáveis, ao passo que as variáveis aleatórias contínuas assumem valores incontáveis. Por exemplo, o tempo de vida de um determinado equipamento pode ser representado por meio de uma variável aleatória contínua. Segundo \textcite{Ross2010}, $X$ é uma variável aleatória contínua se existir uma função densidade de probabilidade, ou seja, uma função não negativa $f(x)$ definida para todo real $x \in (-\infty, \infty)$ em que, para qualquer conjunto $B$ de números reais,
+
+\begin{equation} \label{eq:int_densidade}
+    P(X \in B) = \displaystyle\int_{B} f(x) dx.
+\end{equation} Em outras palavras, a equação \ref{eq:int_densidade} indica que a probabilidade de que $X$ esteja em $B$ pode ser calculada por meio da integração da função densidade de probabilidade ao longo do conjunto $B$. Como X deve assumir algum valor, temos
+
+\begin{equation} \label{eq:int_densidade2}
+    P[X \in (-\infty, \infty)] = \displaystyle\int_{-\infty}^{\infty} f(x) dx = 1,
+\end{equation}
+
+\begin{equation} \label{eq:int_densidade3}
+    P(a \leq X \leq b ) = \displaystyle\int_{a}^{b} f(x) dx,
+\end{equation}
+
+\begin{equation} \label{eq:int_densidade4}
+    P(X = a) = \displaystyle\int_{a}^{a} f(x) dx = 0,
+\end{equation}
+
+\begin{equation} \label{eq:int_densidade4}
+    P(X \leq a) = P(X < a) =  \displaystyle\int_{-\infty}^{a} f(x) dx.
+\end{equation}
+
+Se $X$ é uma variável aleatória contínua com função densidade de probabilidade $f(x)$, então a esperança, ou valor esperado de $X$, é definido como 
+
+\begin{equation}
+    E(X) = \displaystyle\int_{-\infty}^{\infty} xf(x) dx,
+\end{equation}, variância de $X$ definida como
+
+\begin{equation}
+    \mathrm{Var}(X) = E[(X - \mu)^2] = E(X^2) - [E(X)]^2, 
+\end{equation} em que $\mu = E(X)$, e função geradora de momentos definida como
+
+\begin{equation}
+    M(t) = E(e^{tX}) = \displaystyle\int_{-\infty}^{\infty} e^{tx}f(x)dx
+\end{equation} para todos os valores reais de $t$.
+
+O comportamento das variáveis aleatórias pode ser descrito por meio das distribuições de probabilidades. Entre as variáveis aleatórias contínuas, as distribuições abaixo estão entre as mais conhecidas na literatura:
+
+\begin{itemize}
+    \item Distribuição Uniforme Contínua,
+    \item Distribuição Exponencial,
+    \item Distribuição Gama,
+    \item Distribuição Normal.
+\end{itemize}
+
+%---------------------------------------------------------------------------------------
+\chapter{DISTRIBUIÇÃO NORMAL MULTIVARIADA}
+
+Seja $X$ uma variável aleatória com função densidade de probabilidade $f(x)$, função de distribuição acumulada $F(x) = P(X \leq x)$, função geradora de momentos $M_X(t)$, esperança $E(X)$ e variância $\mathrm{Var}(X)$, $X$ tem distribuição normal univariada, ou seja, $X \sim N(\mu, \sigma^2)$, se sua função densidade de probabilidade é dada por
+
+\begin{equation} \label{eq:densidade_normal_uni}
+f(x) = \dfrac{1}{\sqrt{2\pi}\sigma} \exp \left\{-\frac{1}{2} \left(\frac{x - \mu}{\sigma} \right)^2 \right\}, 
+\end{equation} com $-\infty < x < \infty$, $\mu = E(X)$ e $\sigma^2 = \mathrm{Var}(X)$. 
+
+A distribuição normal univariada pode ser generalizada para a distribuição normal multivariada, para o caso no qual se trabalha com duas ou mais variáveis aleatórias simultaneamente. Para tornar mais clara a generalização que será apresentada a seguir, observe que a equação \ref{eq:densidade_normal_uni} pode ser rearranjada como
+
+\begin{equation} \label{eq:densidade_normal_uni2}
+f(x) = \dfrac{1}{(2\pi)^{\frac{1}{2}} (\sigma^2)^{\frac{1}{2}}} \exp \left\{-\frac{1}{2} (x - \mu)(\sigma^2)^{-1}(x - \mu) \right\}.
+\end{equation}
+
+Seja $\mathbf{X} = (X_1,\ldots, X_p)^T$ uma coleção de variáveis aleatórias, denominado vetor aleatório, com função densidade de probabilidade $f(\mathbf{x})$, função de distribuição acumulada $F(\mathbf{x}) = P(X_1 \leq x_1, \ldots, X_p \leq x_p)$, função geradora de momentos $M_{\mathbf{X}}(\mathbf{t})$, vetor de esperanças $E(\mathbf{X})$ e matriz de variâncias e covariâncias $\mathrm{Cov}(\mathbf{X})$, $\mathbf{X}$ tem distribuição normal multivariada, ou seja, $\mathbf{X} \sim N_p(\mathbf{\mu}, \mathbf{\Sigma})$, se sua função densidade de probabilidade é dada por
+
+\begin{equation} \label{eq:densidade_normal_mult}
+f(\mathbf{x}) =  \dfrac{1}{(2\pi)^{\frac{p}{2}} |\mathbf{\Sigma}|^{\frac{1}{2}}} \exp \left\{ -\frac{1}{2} (\mathbf{x} - \mathbf{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \mathbf{\mu})\right\}, 
+\end{equation} com $-\infty < x_i < \infty$, $i = 1,2,\ldots,p$, $\mathbf{\mu}_{p \times 1} = E(\mathbf{X})$ e $\mathbf{\Sigma}_{p \times p} = \mathrm{Cov}(\mathbf{X})$. Assumindo que a matriz simétrica $\mathbf{\Sigma}$ é positiva definida, a expressão \ref{eq:densidade_normal_mult_dist} é a Distância de Mahalanobis entre $\mathbf{x}$ e $\mathbf{\mu}$.
+
+\begin{equation} \label{eq:densidade_normal_mult_dist}
+(\mathbf{x} - \mathbf{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \mathbf{\mu}).
+\end{equation}
+
+De acordo com \textcite{Johnson2014}, as propriedades abaixo são válidas para $\mathbf{X} \sim N_p(\mathbf{\mh}, \mathbf{\Sigma})$:
+
+\begin{enumerate}
+    \item Qualquer combinação linear das componentes de $\mathbf{X}$ são normalmente distribuídas;
+    \item Todos os subconjuntos das componentes de $\mathbf{X}$ têm distribuição normal (univariada ou multivariada);
+    \item Zero covariância implica que as respectivas componentes de $\mathbf{X}$ são independentes;
+    \item A distribuição condicional das componentes de $\mathbf{X}$ são normal (univariada ou multivariada).
+\end{enumerate}
+
+\section{Distribuição Normal Bivariada}
+
+Na equação \ref{eq:densidade_normal_mult}, quando $\mathbf{X} = (X1, X2)^T$ e, consequentemente, $p = 2$, temos a distribuição normal com duas dimensões ou distribuição normal bivariada. Neste caso é possível reescrever a matriz de variâncias e covariâncias em termos de correlação, como demonstrado em \ref{eq:cov_bivariada}.
+
+\begin{equation} \label{eq:cov_bivariada}
+\mathbf{\Sigma} = \begin{bmatrix}
+\sigma_{11} & \sigma_{12} \\ 
+\sigma_{21} & \sigma_{22} \\ 
+\end{bmatrix} = \begin{bmatrix}
+\sigma_{11} & \sigma_{12} \\ 
+\sigma_{12} & \sigma_{22} \\ 
+\end{bmatrix} = \begin{bmatrix}
+\rho_{11} & \rho_{12}\sqrt{\sigma_{11}\sigma_{22} \\ 
+\rho_{12}\sqrt{\sigma_{11}\sigma_{22} & \rho_{22} \\ 
+\end{bmatrix}.\end{equation} Em consequência, o determinante e a inversa de $\mathbf{\Sigma}$ ficam definidos por \ref{eq:det_bivariada} e \ref{eq:inv_bivariada}, respectivamente. 
+
+\begin{equation} \label{eq:det_bivariada}
+|\mathbf{\Sigma}| = \sigma_{11}\sigma_{22} - \sigma_{12}^2 =  \rho_{11}\rho_{12}(1 - \rho_{12}^2)
+\end{equation}
+
+\begin{equation} \label{eq:inv_bivariada}
+\mathbf{\Sigma}^{-1} = \dfrac{1}{1-\rho_{12}^2}
+\begin{bmatrix}
+\dfrac{1}{\rho_{11}} & -\dfrac{\rho_{12}}{\sqrt{\rho_{11}\rho_{22}}} \\ 
+-\dfrac{\rho_{12}}{\sqrt{\rho_{11}\rho_{22}}} & \dfrac{1}{\rho_{22}} \\ 
+\end{bmatrix}
+\end{equation} Observe em \ref{eq:det_bivariada} que se a correlação entre as variáveis aleatórias $X_1$ e $X_2$ for perfeita, ou seja, $\rho_{12} = 1$, o determinante da matriz de variâncias e covariâncias será nulo. Observe em \ref{eq:densidade_normal_mult} que $|\mathbf{\Sigma}| = 0$ anula a função, resultando na não existência de uma distribuição normal multivariada.
+
+Por fim, a diferença $(\mathbf{x} - \mathbf{\mu})$ é obtida por meio e uma simples operação de subtração entre matrizes demonstrada em \ref{eq:dif_bivariada}, e então, substituindo \ref{eq:cov_bivariada}, \ref{eq:det_bivariada}, \ref{eq:inv_bivariada} e \ref{eq:dif_bivariada} em \ref{eq:densidade_normal_mult}, obtemos \ref{eq:densidade_normal_mult2}.
+
+\begin{equation} \label{eq:dif_bivariada}
+(\mathbf{x} - \mathbf{\mu}) =
+\begin{bmatrix}
+x_1 - \mu_1 \\ 
+x_2 - \mu_2 \\ 
+\end{bmatrix}.
+\end{equation} 
+
+\begin{multline} \label{eq:densidade_normal_mult2}
+f(\mathbf{x}) =  \dfrac{1}{(2\pi)^{\frac{p}{2}} \sqrt{\sigma_{11}\sigma_{12}(1 - \rho_{12}^2)}} \exp \Biggl\{-\frac{1}{2(1 - \rho_{12}^2)} \Biggr[ \left( \dfrac{x_1 - \mu_1}{\sqrt{\sigma_{11}}}\right)^2 + \left( \dfrac{x_2 - \mu_2}{\sqrt{\sigma_{22}}}\right)^2  \\ 
+- 2\rho_{12} \left( \dfrac{x_1 - \mu_1}{\sqrt{\sigma_{11}}}\right) \left( \dfrac{x_2 - \mu_2}{\sqrt{\sigma_{22}}}\right) \Biggr] \Biggl\}.
+\end{multline}
+
+Com a expressão \ref{eq:densidade_normal_mult2} podemos discutir algumas propriedades da distribuição normal multivariada. Comentamos anteriormente que se a correlação entre as variáveis aleatórias $X_1$ e $X_2$ for perfeita, não há distribuição normal univariada. Agora observamos que se não houver correlação entre $X_1$ e $X_2$, ou seja, $\rho_{12} = 0$, que $f(\mathbf{x})}$ pode ser escrita como o produto entre as densidades univariadas de $X_1$ e $X_2$ (\ref{eq:densidade_normal_uni}) e $X_1$ e $X_2$ são independentes. As figuras \ref{fig:corr_00} e \ref{fig:corr_09} exibem a densidade normal bivariada com $\rho_{12} = 0$ e $\rho_{12} = 0.9$, respectivamente. 
+
+% Demonstrar os gráficos quando a correlação for 0, 0.5 e 0.9.
+
+\figura
+{Densidade normal bivariada com $\sigma_{11} = \sigma_{22}$ e $\rho_{12} = 0$}
+{0.8}
+{fig/corr_00.png}
+{O autor}
+{corr_00}
+{}
+{}
+
+\figura
+{Densidade normal bivariada com $\sigma_{11} = \sigma_{22}$ e $\rho_{12} = 0.9$}
+{0.8}
+{fig/corr_09.png}
+{O autor}
+{corr_09}
+{}
+{}
+
+A densidade da normal multivariada é constante em superfícies em que  
+
+\begin{equation} \label{eq:distancia_contorno}
+(\mathbf{x} - \mathbf{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \mathbf{\mu}) = c^2.
+\end{equation} e o conjunto dos $\mathbf{x}$ que satisfazem e equação \ref{eq:distancia_contorno} são os que compõem o \textbf{contorno de densidade de probabilidade constante}. Os contornos de densidade constante da normal multivariada são elipsoides com centro em $\mathbf{\mu}$ e eixos em $^\pm c \sqrt{\lambda_ie_i}$ em que $(\lambda_i, e_i)$ é um par de autovalor-autovetor de $\mathbf{\Sigma}^{-1}$. 
+
+As figuras \ref{fig:cont_corr00} e \ref{fig:cont_corr09} exibem os contornos para os casos em que os elementos são não correlacionados ($\rho_{12} = 0$) e correlacionados ($\rho_{12} \neq 0$), respectivamente. Observe que para o caso não correlacionado, os autovetores de $\mathbf{}$ são paralelos aos eixos $x_1$ e $x_2$, ao passo que para o caso correlacionado, os autovetores apresentam uma inclinação.
+
+\figura
+{Contornos elípticos da normal bivariada com $\sigma_{11} = \sigma_{22}$ e $\rho_{12} = 0$}
+{0.8}
+{fig/cont_corr00.png}
+{O autor}
+{cont_corr00}
+{}
+{}
+
+\figura
+{Contornos elípticos da normal bivariada com $\sigma_{11} = \sigma_{22}$ e $\rho_{12} = 0$}
+{0.8}
+{fig/cont_corr09.png}
+{O autor}
+{cont_corr09}
+{}
+{}
+
+\section{Aplicações}
+
+De acordo com \textcite{Furtado1996}, a maioria das técnicas multivariadas parte do pressuposto de que os dados seguem uma distribuição normal multivariada, o que faz com que a distribuição normal multivariada seja de suma importância na análise multivariada. Na prática raramente os dados terão distribuição normal multivariada perfeita, mas uma aproximação em muitos casos é suficiente para facilitar todo o tratamento matemático. \textcite{Furtado1996} menciona que devido ao teorema do limite central, a distribuição normal multivariada se aproxima da distribuição amostral de muitas estatísticas multivariadas, independentemente da distribuição original.
+
+Uma conhecida técnica multivariada é a \textbf{Análise de Discriminante}. Segundo \textcite{Tabachnick2013}, o objetivo desta técnica é prever a associação do grupo a partir de um conjunto de preditores. Por exemplo, é possível um diagnóstico diferenciado entre um grupo de crianças sem deficiência, um grupo de crianças com dificuldade de aprendizado e um grupo com transtorno com transtorno emocional de forma confiável a partir de um conjunto de pontuações de testes psicológicos? \textcite{Tabachnick2013} mencionam ainda a necessidade de que as pontuações nos preditores sejam amostras independentes e aleatórias de uma população e que a distribuição amostral de qualquer combinação linear de preditores seja normalmente distribuídas. Em outras palavras, as autoras se referem à suposição de normalidade multivariada. \textcite{AbuZeina2018} utilizaram a Analise de Discriminante Linear para classificação de textos em Árabe e tiveram resultados promissores para aplicações no campo da mineração de texto.
+
+Outra técnica multivariada é a \textbf{Análise de Variância Multivariada}, também conhecida como MANOVA, que é uma generalização da ANOVA para casos várias variáveis dependentes. \textcite{Tabachnick2013} exemplificam da seguinte forma: imagine que um pesquisador esteja interessado no efeito de diferentes tipos de tratamento para diversos tipos de ansiedade, sendo que a variável independente é composta por três níveis de tratamento. Após a atribuição aleatória dos indivíduos a tratamentos e um período subsequente de tratamento, os indivíduos são medidos quanto aos três tipos de ansiedade. As pontuações em todas as três medidas servem como variáveis dependentes. O objetivo desta técnica é avaliar se uma combinação das três medidas varia em função do tratamento. A diferença da MANOVA para Análise de Discriminante é que enquanto esta enfatiza as diferenças médias e significância estatística, a Análise de Discriminante enfatiza a previsão de associação ao grupo e as dimensões nas quais os grupos diferem. De acordo com \textcite{Tabachnick2013}, os testes de significância para MANOVA são baseados na distribuição normal multivariada, uma vez que a normalidade multivariada implica que as as distribuições amostrais das médias das variáveis dependentes em todas as combinações lineares sejam normalmente distribuídas. Com $F$ univariado e amostras suficientemente grandes, o teorema do limite central sugere que as distribuições amostrais das médias se aproxima da normalidade mesmo quando os escores originais não. \textcite{Johnson2007} demonstraram o poder e a versatilidade da Análise de Variância Multivariada por meio de duas técnicas metabolômicas diferentes. Os autores encontrarem efeitos principais e interações significativas no experimentos, permitindo uma interpretação mais completa e abrangente do que com a Análise de Componentes Principais.
+
+De acordo com \textcite{Ullman2013}, a \textbf{Modelagem de Equações Estruturais} é um conjunto de métodos estatísticos que permitem avaliar o relacionamento entre uma ou mais variáveis independentes e uma ou mais variáveis dependentes, podendo as variáveis ser contínuas ou discretas, fatores ou métricas. A maioria dos métodos usados na Modelagem de Equações Estruturais assumem normalidade multivariada. Por exemplo, método de estimação da \textbf{Máxima Verossimilhança}, que faz uso de um procedimento iterativo para minimização da função de verossimilhança, e, segundo \textcite{Anderson1982}, sob a suposição de normalidade multivariada este método se apresenta de forma consistente, eficiente e sem vieses de estimativas. O método dos \textbf{Mínimos Quadrados Generalizados}, conhecido no campo da Econometria, é aplicado na estimação de parâmetros desconhecidos em um modelos de regressão linear, em caso de heterocedasticidade ou quando há correlação entre os resíduos. Segundo \textcite{Amorim2012}, sob a suposição de normalidade multivariada, o método dos Mínimos Quadrados Generalizados é assintoticamente normal e eficiente. \textcite{Liu2022} apresentaram um novo método para estimação de parâmetros em equações diferenciais baseado no método da Máxima Verossimilhança. \textcite{Bai2020} utilizaram a estimação por Mínimos Quadrados Generalizados para modelos de dados de painel linear e concluíram que o estimador proposto é mais eficiente quando os Mínimos Quadrados Ordinários, quando há heterocedasticidade, correlações seriais e transversais.
+
+
+
+
+
+
+
+

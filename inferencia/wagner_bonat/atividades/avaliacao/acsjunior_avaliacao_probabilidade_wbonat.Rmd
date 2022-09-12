@@ -1,0 +1,864 @@
+---
+title: "Probabilidade e Estatística Matemática I"
+subtitle: "Avaliação Prof. Wagner Bonat"
+author: "Antonio C. da Silva Júnior"
+output: html_document
+date: '2022-08-10'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen=999)
+```
+
+<br>
+
+Sejam $Y_1, \ldots, Y_n$ variáveis aleatórias com distribuição Burr Type III de parâmetros $c$ e $d$ desconhecidos. A função densidade de probabilidade é dada por:
+
+$$f(y;c,d) = cdy^{-c-1}(1+y^{-c})^{-d-1},$$ para $y > 0$ e $c,d > 0$.
+
+<br>
+
+Simulando dados e estimando os parâmetros para validação dos cálculos adiante:
+
+```{r}
+# Dados para simulação:
+set.seed(1)
+y <- rweibull(100, shape=4)
+hist(y)
+
+# Função densidade de probabilidade Burr Type III
+f <- function(y, c, d) c*d*y^(-c-1)*(1+y^(-c))^(-d-1)
+
+# Estimação dos parâmetros por máxima verossimilhança:
+mle <- MASS::fitdistr(x = y,
+                densfun = f,
+                start = list(c = 1, d = 1),
+                lower = list(c = 0, d = 0))
+
+# Estimativas:
+mle$estimate
+```
+
+
+<br>
+
+1. Escreva a função de verossimilhança, log-verossimilhança, verossimilhança relativa e deviance.
+
+<hr> 
+
+Assumindo que $Y_1, \ldots, Y_n$ são iid:
+
+**Função de verossimilhança:**
+
+$L(c,d \mid \mathbf{y}) = \prod\limits_{i=1}^n cdy_i^{-(c+1)}(1+y_i^{-c})^{-(d+1)}$
+
+$L(c,d \mid \mathbf{y}) = (cd)^n \prod\limits_{i=1}^n y_i^{-(c+1)} (1+y_i^{-c})^{-(d+1)}$
+
+```{r}
+# Função de verossimilhança:
+L <- function(c, d, y_i) {
+  n <- length(y_i)
+  out <- (c*d)^n * prod(y_i^(-(c+1))*(1+y_i^(-c))^(-(d+1)))
+  return(out)
+}
+
+# Verossimilhança obtida por meio da função MASS::fitdistr():
+exp(mle$loglik)
+
+# Verossimilhança calculada:
+L(mle$estimate[['c']], mle$estimate[['d']], y)
+```
+
+<br>
+
+**Função de log-verossimilhança:**
+
+$l(c,d \mid \mathbf{y}) = \ln \left[  (cd)^n \prod\limits_{i=1}^n y_i^{-(c+1)} \cdot \prod\limits_{i=1}^n (1+y_i^{-c})^{-(d+1)}  \right]$
+
+$l(c,d \mid \mathbf{y}) = \ln \left[ (cd)^n \right] + \ln \left[  \prod\limits_{i=1}^n y_i^{-(c+1)}  \right] + \ln \left[ \prod\limits_{i=1}^n (1+y_i^{-c})^{-(d+1)} \right]$
+
+$l(c,d \mid \mathbf{y}) = n\ln (cd) +  \sum\limits_{i=1}^n \ln \left[ y_i^{-(c+1)}  \right] + \sum\limits_{i=1}^n \ln \left[ (1+y_i^{-c})^{-(d+1)} \right]$
+
+$l(c,d \mid \mathbf{y}) = n\ln (c) + n\ln (d) - (c+1)\sum\limits_{i=1}^n \ln(y_i) - (d+1)\sum\limits_{i=1}^n \ln(1+y_i^{-c})$
+
+```{r}
+# Função de log-verossimilhança:
+logL <- function(c, d, y_i) {
+  n <- length(y_i)
+  out <- n*log(c) + n*log(d) -(c + 1)*sum(log(y_i)) - (d+1)*sum(log(1+y_i^(-c)))
+  return(out)
+}
+
+# Verossimilhança obtida por meio da função MASS::fitdistr():
+mle$loglik
+
+# Verossimilhança calculada:
+logL(mle$estimate[['c']], mle$estimate[['d']], y)
+```
+
+
+<br>
+
+**Função de Verossimilhança relativa:**
+
+$R(c,d \mid \mathbf{y}) = \dfrac{L(c,d \mid \mathbf{y})}{L(\hat{c}, \hat{d} \mid \mathbf{y})}$
+
+$R(c,d \mid \mathbf{y}) = \dfrac{(cd)^n \prod_{i=1}^n y_i^{-(c+1)} \cdot \prod_{i=1}^n (1+y_i^{-c})^{-(d+1)}}{(\hat{c}\hat{d})^n \prod_{i=1}^n y_i^{-(\hat{c}+1)} \cdot \prod_{i=1}^n (1+y_i^{-\hat{c}})^{-(\hat{d}+1)}}$
+
+```{r}
+LR <- function(c, d, c_hat, d_hat, y_i) {
+  out <- L(c,d,y_i) / L(c_hat,d_hat,y_i)
+  return(out)
+}
+```
+
+<br>
+
+**Função Deviance:**
+
+$D(c,d \mid \mathbf{y}) = -2 \left[ l(c,d \mid \mathbf{y}) - l(\hat{c},\hat{d} \mid \mathbf{y}) \right]$
+
+$D(c,d \mid \mathbf{y}) = -2 \left[ \left( n\ln (cd) - (c+1)\sum\limits_{i=1}^n \ln(y_i) -(d+1)\sum\limits_{i=1}^n \ln(1+y_i^{-c}) \right) - \left( n\ln (\hat{c}\hat{d}) -(\hat{c}+1)\sum\limits_{i=1}^n \ln(y_i) -(\hat{d}+1)\sum\limits_{i=1}^n \ln(1+y_i^{-\hat{c}}) \right) \right]$
+
+```{r}
+# Deviance
+DV <- function(c, d, c_hat, d_hat, y_i) {
+  out <- -2*(logL(c,d,y_i) - logL(c_hat, d_hat, y_i))
+  return(out)
+}
+```
+
+<br>
+<br>
+
+2. Desenhe um gráfico mostrando as funções descritas na letra A:
+
+<hr> 
+
+**Função de verossimilhança**
+
+```{r, warning=FALSE}
+fL <- Vectorize(L, vectorize.args = c('c', 'd'))
+c <- sort(c(seq(1,20,0.5), mle$estimate[['c']]))
+d <- sort(c(seq(0.1,1,0.1), mle$estimate[['d']]))
+z <- outer(c, d, fL, y_i=y)
+
+persp(c, d, z, theta = 40, phi = 30, ticktype = 'detailed', zlab = "L")
+
+```
+
+<br>
+
+**Função de log-verossimilhança**
+
+```{r}
+flogL <- Vectorize(logL, vectorize.args = c("c", "d"))
+z <- outer(c, d, flogL, y_i=y)
+
+persp(c, d, z, theta = 40, phi = 30, ticktype = 'detailed', zlab = "l")
+```
+
+<br>
+
+
+**Verossimilhança relativa**
+
+```{r}
+fLR <- Vectorize(LR, vectorize.args = c("c", "d"))
+z <- outer(c, d, fLR, c_hat=mle$estimate[['c']], d_hat=mle$estimate[['d']], y_i=y)
+
+persp(c, d, z, theta = 40, phi = 30, ticktype = 'detailed', zlab = "R")
+```
+<br>
+
+**Deviance**
+
+```{r}
+fDV <- Vectorize(DV, vectorize.args = c("c", "d"))
+z <- outer(c, d, fDV, c_hat=mle$estimate[['c']], d_hat=mle$estimate[['d']], y_i=y)
+
+persp(c, d, z, theta = 40, phi = 30, ticktype = 'detailed', zlab = "D")
+```
+<br>
+<br>
+
+3. Encontre o estimador de máxima verossimilhança para $c$ e $d$.
+
+<hr>
+
+**Função escore em d:**
+
+$U_d(c,d) = \dfrac{\partial}{\partial d}l(c,d)$
+
+$U_d(c,d) = \dfrac{\partial}{\partial d} \left[  n\ln (c) + n\ln (d) - c\sum\limits_{i=1}^n \ln(y_i) - \sum\limits_{i=1}^n \ln(y_i) -d \sum\limits_{i=1}^n \ln(1+y_i^{-c}) - \sum\limits_{i=1}^n \ln(1+y_i^{-c}) \right]$
+
+$U_d(c,d) = \dfrac{\partial}{\partial d} \left[  n\ln (c) \right] + n \dfrac{\partial}{\partial d} \left[ \ln (d) \right] - \dfrac{\partial}{\partial d} \left[ c\sum\limits_{i=1}^n \ln(y_i) \right] - \dfrac{\partial}{\partial d} \left[ \sum\limits_{i=1}^n \ln(y_i) \right] - \sum\limits_{i=1}^n \ln(1+y_i^{-c}) \dfrac{\partial}{\partial d} d - \dfrac{\partial}{\partial d} \left[ \sum\limits_{i=1}^n \ln(1+y_i^{-c}) \right]$
+
+$U_d(c,d) = 0 + \dfrac{n}{d} - 0 - 0 - \sum\limits_{i=1}^n \ln(1+y_i^{-c}) - 0$
+
+$U_d(c,d) = \dfrac{n}{d} - \sum\limits_{i=1}^n \ln(1+y_i^{-c})$
+
+```{r, echo=FALSE}
+Ud <- function(c,d,y_i) {
+  n <- length(y_i)
+  out <- n/d - sum(log(1 + y_i^(-c)))
+  return(out)
+}
+```
+
+
+<br>
+
+**Função escore em c:**
+
+$U_c(c,d) = \dfrac{\partial}{\partial c}l(c,d)$
+
+$U_c(c,d) = \dfrac{\partial}{\partial c} \left[ n\ln (c) + n\ln (d) - c\sum\limits_{i=1}^n \ln(y_i) - \sum\limits_{i=1}^n \ln(y_i) -d \sum\limits_{i=1}^n \ln(1+y_i^{-c}) - \sum\limits_{i=1}^n \ln(1+y_i^{-c}) \right]$
+
+$U_c(c,d) = n \dfrac{\partial}{\partial c} \ln (c) + \dfrac{\partial}{\partial c} \left[ n\ln (d) \right] - \sum\limits_{i=1}^n \ln(y_i) \dfrac{\partial}{\partial c} c  - \dfrac{\partial}{\partial c} \left[\sum\limits_{i=1}^n \ln(y_i) \right] - d \dfrac{\partial}{\partial c} \left[ \sum\limits_{i=1}^n \ln(1+y_i^{-c}) \right] - \dfrac{\partial}{\partial c} \left[ \sum\limits_{i=1}^n \ln(1+y_i^{-c}) \right]$
+
+$U_c(c,d) = \dfrac{n}{c} + 0 - \sum\limits_{i=1}^n \ln(y_i)  - 0 - d \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_1^c + 1}  - \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_1^c + 1}$
+
+$U_c(c,d) = \dfrac{n}{c} - \sum\limits_{i=1}^n \ln(y_i) - d \sum\limits_{i=1}^n - \dfrac{\ln(y_i)}{y_i^c + 1}  - \sum\limits_{i=1}^n - \dfrac{\ln(y_i)}{y_i^c + 1}$
+
+$U_c(c,d) = \dfrac{n}{c} - \sum\limits_{i=1}^n \ln(y_i) + d \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^c + 1}  + \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^c + 1}$
+
+$U_c(c,d) = \dfrac{n}{c} - \sum\limits_{i=1}^n \ln(y_i) + (d + 1)\sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^c + 1}$
+
+$U_c(c,d) = \dfrac{n}{c} - \sum\limits_{i=1}^n \ln(y_i) + d \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^c + 1} + \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^c + 1}$
+
+```{r, echo=FALSE}
+Uc <- function(c,d,y_i) {
+  n <- length(y_i)
+  out <- n/c - sum(log(y_i)) + d*sum(log(y_i) / (y_i^c + 1)) + sum(log(y_i) / (y_i^c + 1))
+  return(out)
+}
+```
+
+<br>
+
+**EMV:**
+
+$0 = U_d(\hat{c}, \hat{d})$
+
+$0 = \dfrac{n}{\hat{d}} - \sum\limits_{i=1}^n \ln(1+y_i^{-\hat{c}})$
+
+$\hat{d} = \dfrac{n}{\sum_{i=1}^n \ln(1+y_i^{-\hat{c}})}$
+
+```{r}
+est_d <- function(y_i, c_hat) {
+  n <- length(y_i)
+  out <- n / sum(log(1 + y_i^(-c_hat)))
+  return(out)
+}
+
+# d estimado (considerando o c encontrado com a função MASS::fitdistr()):
+est_d(y, mle$estimate[['c']])
+
+# d estimado pela função MASS::fitdistr():
+mle$estimate[['d']]
+```
+
+<br>
+
+$0 = U_c(\hat{c}, \hat{d})$
+
+$0 = \dfrac{n}{\hat{c}} - \sum\limits_{i=1}^n \ln(y_i) + \hat{d} \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} + \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1}$
+
+$0 = \dfrac{n}{\hat{c}} - \sum\limits_{i=1}^n \ln(y_i) + \left[ \dfrac{n}{\sum_{i=1}^n \ln(1+y_i^{-\hat{c}})} \right] \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} + \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i{^\hat{c}} + 1}$
+
+$\hat{c} = ???$
+
+Como não consegui isolar $\hat{c}$, apliquei o método da bisseção para encontrar uma aproximação (utilizando os dados simulados no início do notebook):
+
+```{r}
+# Fonte: http://leg.ufpr.br/~wagner/TMCD/
+bissecao <- function(fx, a, b, tol = 1e-04, max_iter = 100) {
+  fa <- fx(a);  fb <- fx(b)
+  if(fa*fb > 0) stop("Solução não está no intervalo")
+  solucao <- c() 
+  sol <- (a + b)/2 
+  solucao[1] <- sol
+  limites <- matrix(NA, ncol = 2, nrow = max_iter)
+  for(i in 1:max_iter) {
+    test <- fx(a)*fx(sol)
+    if(test < 0) { 
+      solucao[i+1] <- (a + sol)/2 
+      b = sol
+      }
+    if(test > 0) { 
+      solucao[i+1] <- (b + sol)/2 
+      a = sol
+      }
+    if( abs( (b-a)/2) < tol) break
+    sol = solucao[i+1]
+    limites[i,] <- c(a,b)
+  }
+  out <- list("Tentativas" = solucao, "Limites" = limites, "Raiz" = solucao[i+1])
+  return(out)
+}
+
+# Implementando a função
+fc <- function(c) {
+  set.seed(1)
+  y <- rweibull(100, shape=4) # mesmos dados simulados no início
+  n <- length(y)
+  out <- n/c - sum(log(y)) + (n / sum(log(1 + y^(-c)))) * sum(log(y) / (y^c + 1)) + sum(log(y) / (y^c + 1))
+  return(out)
+}
+
+# Resolvendo numericamente
+resul <- bissecao(fx = fc, a = 8, b = 10, tol = 1e-06)
+
+
+# aproximação de c:
+resul$Raiz
+
+# c estimado pela função MASS::fitdistr():
+mle$estimate[['c']]
+```
+
+<br>
+<br>
+
+4. Faça uma aproximação em séries de Taylor até segunda ordem da função deviance.
+
+<hr>
+
+Considerando
+
+$\mathbf{\theta} = \begin{bmatrix}
+c \\ 
+d  \\ 
+\end{bmatrix}$, $\mathbf{\hat{\theta}} = \begin{bmatrix}
+\hat{c} \\ 
+\hat{d}  \\ 
+\end{bmatrix}$, $\mathbf{U}_\mathbf{\hat{\theta}} = \begin{bmatrix}
+U_c(\hat{c}, \hat{d}) \\ 
+U_d(\hat{c}, \hat{d}) \\ 
+\end{bmatrix}$.
+
+Temos
+
+$D(\mathbf{\theta}) = -2 \left[ l(\mathbf{\theta}) - l(\mathbf{\hat{\theta}}) \right]$
+
+$D(\mathbf{\theta}) = 2 \left[l(\mathbf{\hat{\theta}}) -  l(\mathbf{\theta}) \right]$.
+
+Sabendo que
+
+$\mathbf{H_{\mathbf{\hat{\theta}}}} = \begin{bmatrix}
+\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial c} &  \dfrac{\partial U_d(\hat{c},\hat{d})}{\partial c}\\ 
+\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial d} &  \dfrac{\partial U_d(\hat{c},\hat{d})}{\partial d}\\ 
+\end{bmatrix}$, em que
+
+$U_c(\hat{c},\hat{d}) = \dfrac{\partial l(\mathbf{\hat{\theta}})}{\partial \hat{c}} \text{ e }  U_d(\hat{c},\hat{d}) = \dfrac{\partial l(\mathbf{\hat{\theta}})}{\partial \hat{d}}$,
+
+A aproximação de $l(\mathbf{\theta})$ em série de Taylor até segunda ordem fica definida por
+
+$l(\mathbf{\theta}) \approx l(\mathbf{\hat{\theta}}) + (\mathbf{\theta} - \mathbf{\hat{\theta}}) \mathbf{U}_\mathbf{\hat{\theta}} - \dfrac{1}{2}(\mathbf{\theta} - \mathbf{\hat{\theta}})^T \mathbf{H_{\mathbf{\hat{\theta}}}} (\mathbf{\theta} - \mathbf{\hat{\theta}})$.
+
+Como $\mathbf{U}_\mathbf{\hat{\theta}} = \mathbf{0}$,
+
+$l(\mathbf{\theta}) \approx l(\mathbf{\hat{\theta}}) - \dfrac{1}{2}(\mathbf{\theta} - \mathbf{\hat{\theta}})^T \mathbf{H_{\mathbf{\hat{\theta}}}} (\mathbf{\theta} - \mathbf{\hat{\theta}})$.
+
+E, consequentemente, a deviance é definida por
+
+$D(\mathbf{\theta}) \approx 2 \biggl\{ l(\mathbf{\hat{\theta}}) -  \left[ l(\mathbf{\hat{\theta}}) - \dfrac{1}{2}(\mathbf{\theta} - \mathbf{\hat{\theta}})^T \mathbf{H_{\mathbf{\hat{\theta}}}} (\mathbf{\theta} - \mathbf{\hat{\theta}}) \right] \biggl\}$
+
+$D(\mathbf{\theta}) \approx 2 \left[ l(\mathbf{\hat{\theta}}) -  l(\mathbf{\hat{\theta}}) + \dfrac{1}{2}(\mathbf{\theta} - \mathbf{\hat{\theta}})^T \mathbf{H_{\mathbf{\hat{\theta}}}} (\mathbf{\theta} - \mathbf{\hat{\theta}}) \right]$
+
+$D(\mathbf{\theta}) \approx 2 \left[ \dfrac{1}{2}(\mathbf{\theta} - \mathbf{\hat{\theta}})^T \mathbf{H_{\mathbf{\hat{\theta}}}} (\mathbf{\theta} - \mathbf{\hat{\theta}}) \right]$
+
+$D(\mathbf{\theta}) \approx (\mathbf{\theta} - \mathbf{\hat{\theta}})^T \mathbf{H_{\mathbf{\hat{\theta}}}} (\mathbf{\theta} - \mathbf{\hat{\theta}})$.
+
+<br>
+
+Obtendo os elementos de $\mathbf{H}_{\mathbf{\hat{\theta}}}$:
+
+$\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial \hat{c}} = \dfrac{\partial}{\partial \hat{c}} \left[ \dfrac{n}{\hat{c}} - \sum\limits_{i=1}^n \ln(y_i) + (d + 1)\sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \right]$
+
+$\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial \hat{c}} = - \dfrac{n}{\hat{c}^2} + (d + 1)\dfrac{\partial}{\partial \hat{c}} \left[ \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \right]$
+
+$\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial \hat{c}} = - \dfrac{n}{\hat{c}^2} - (d + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2}$
+
+<br>
+
+$\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial \hat{d}} = \dfrac{\partial}{\partial \hat{d}} \left[ \sum\limits_{i=1}^n \ln(y_i) + (\hat{d} + 1)\sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \right]$
+
+$\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial \hat{d}} = \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \dfrac{\partial}{\partial \hat{d}} (\hat{d} + 1)$
+
+$\dfrac{\partial U_c(\hat{c},\hat{d})}{\partial \hat{d}} = \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1}$
+
+<br>
+
+$\dfrac{\partial U_d(\hat{c},\hat{d})}{\partial \hat{c}} = \dfrac{\partial}{\partial \hat{c}} \left[ \dfrac{n}{\hat{d}} - \sum\limits_{i=1}^n \ln(1+y_i^{-\hat{c}}) \right]$
+
+$\dfrac{\partial U_d(\hat{c},\hat{d})}{\partial \hat{c}} = - \dfrac{\partial}{\partial \hat{c}} \left[ \sum\limits_{i=1}^n \ln(1+y_i^{-\hat{c}}) \right]$
+
+$\dfrac{\partial U_d(\hat{c},\hat{d})}{\partial \hat{c}} = - \left[ -  \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \right]$
+
+$\dfrac{\partial U_d(\hat{c},\hat{d})}{\partial \hat{c}} = \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1}$
+
+<br>
+
+$\dfrac{\partial U_d(\hat{c},\hat{d})}{\partial \hat{d}} = \dfrac{\partial}{\partial \hat{d}} \left[ \dfrac{n}{\hat{d}} - \sum\limits_{i=1}^n \ln(1+y_i^{-\hat{c}}) \right]$
+
+$\dfrac{\partial U_d(\hat{c},\hat{d})}{\partial \hat{d}} = -\dfrac{n}{\hat{d}^2}$
+
+<br>
+
+Logo, temos a matrix $\mathbf{H}_\mathbf{\hat{\theta}}$:
+
+$\mathbf{H_{\mathbf{\hat{\theta}}}} = \begin{bmatrix}
+- \dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} &  \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1}\\ 
+\sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} &  -\dfrac{n}{\hat{d}^2}\\ 
+\end{bmatrix}$.
+
+Avaliação de $\mathbf{H}_\mathbf{\hat{\theta}}$:
+
+```{r}
+# Maximizando a log-verossimilhança numéricamente para obtenção do hessiano:
+ll <- function(par, y) sum(log((par[1]*par[2]*y^(-par[1]-1)*(1+y^(-par[1]))^(-par[2]-1))))
+fit <- optim(par = c(1, 1), fn = ll, method = "Nelder-Mead", hessian = TRUE, control = list(fnscale = -1), y = y)
+
+fH <- function(c, d, y_i) {
+  n <- length(y_i)
+  h11 <- -n/c^2 - (d+1)*sum((y_i^c * log(y_i)^2) / (y_i^c + 1)^2)
+  h12 <- sum(log(y_i) / (y_i^c + 1))
+  h21 <- sum(log(y_i) / (y_i^c + 1))
+  h22 <- -length(y_i) / d^2
+  out <- matrix(c(h11, h12, h21, h22), byrow = TRUE, nrow=2)
+  return(out)
+}
+
+# Hessiano calculado:
+H <- fH(mle$estimate[['c']], mle$estimate[['d']], y)
+H
+
+# Hessiano pela função optim():
+fit$hessian
+```
+
+<br>
+
+Desenvolvendo a expressão da deviance:
+
+$D(\mathbf{\theta}) \approx (\mathbf{\theta} - \mathbf{\hat{\theta}})^T \mathbf{H_{\mathbf{\hat{\theta}}}} (\mathbf{\theta} - \mathbf{\hat{\theta}})$
+
+$D({c,d}) \approx \begin{bmatrix}
+c - \hat{c} & d - \hat{d}  \\ 
+\end{bmatrix} \cdot \mathbf{H_{\mathbf{\hat{\theta}}}} \cdot \begin{bmatrix}
+c - \hat{c} \\ 
+d - \hat{d}  \\ 
+\end{bmatrix}$
+
+$D({c,d}) \approx \begin{bmatrix}
+c - \hat{c} & d - \hat{d}  \\ 
+\end{bmatrix} \cdot \begin{bmatrix}
+- \dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} &  \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1}\\ 
+\sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} &  -\dfrac{n}{\hat{d}^2}\\ 
+\end{bmatrix} \cdot \begin{bmatrix}
+c - \hat{c} \\ 
+d - \hat{d}  \\ 
+\end{bmatrix}$
+
+$D({c,d}) \approx \begin{bmatrix}
+(c-\hat{c}) \biggl( - \dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} \biggl) + (d-\hat{d}) \biggl( \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \biggl) & (c-\hat{c})\biggl( \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \biggl) + (d-\hat{d})\biggl( -\dfrac{n}{\hat{d}^2} \biggl) \\ 
+\end{bmatrix}  \cdot \begin{bmatrix}
+c - \hat{c} \\ 
+d - \hat{d}  \\ 
+\end{bmatrix}$
+
+$D({c,d}) \approx (c-\hat{c}) \left[ (c-\hat{c}) \biggl( - \dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} \biggl) + (d-\hat{d}) \biggl( \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \biggl) \right] + (d-\hat{d}) \left[ (c-\hat{c})\biggl( \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} \biggl) + (d-\hat{d})\biggl( -\dfrac{n}{\hat{d}^2} \biggl) \right]$
+
+$D({c,d}) \approx (c-\hat{c})^2 \left[ -\dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} \right] + (c-\hat{c})(d-\hat{d}) \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} + (c-\hat{c})(d-\hat{d}) \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} + (d-\hat{d})^2\biggl( -\dfrac{n}{\hat{d}^2} \biggl)$
+
+$D({c,d}) \approx (c-\hat{c})^2 \left[ - \dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} \right] + 2(c-\hat{c})(d-\hat{d}) \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} + (d-\hat{d})^2\biggl( -\dfrac{n}{\hat{d}^2} \biggl)$
+
+$D({c,d}) \approx - \dfrac{n(c-\hat{c})^2}{\hat{c}^2} - (c-\hat{c})^2(\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} + 2(c-\hat{c})(d-\hat{d}) \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} - \dfrac{n(d-\hat{d})^2}{\hat{d}^2}$
+
+Avaliação de $D(c,d)$:
+
+```{r}
+c <- 10
+d <- 1
+c_hat <- mle$estimate[['c']]
+d_hat <- mle$estimate[['d']]
+theta_hat <- matrix(c(c_hat, d_hat))
+theta <- matrix(c(c, d))
+
+# Deviance matricial:
+t(theta - theta_hat) %*% H %*% (theta - theta_hat)
+
+# Deviance função:
+fD <- function(c, d, c_hat, d_hat, y_i) {
+  n <- length(y_i)
+  C <- (c - c_hat)^2
+  D <- (d - d_hat)^2
+  E <- (c - c_hat)*(d - d_hat)
+  out <- -(n*C / c_hat^2) - C*(d_hat+1)*sum((y_i^c_hat * log(y_i)^2)/(y_i^c_hat+1)^2) + 2*E*sum((log(y_i))/(y_i^c_hat + 1)) - (n*D / d_hat^2)
+  return(out)
+}
+fD(c, d, c_hat, d_hat, y)
+```
+
+<br>
+<br>
+
+5. Encontre um intervalo de confiança baseado na aproximação obtida no exercício anterior.
+
+<hr>
+
+Definições:
+
+$\mathbf{\hat{\theta}} = \begin{bmatrix} \hat{c} & \hat{d} \end{bmatrix}^T$,
+
+$\mathbf{I_{\hat{\theta}}} = -\mathbf{H_{\hat{\theta}}}$ (matriz de informação observada),
+
+$\mathbf{V_{\hat{\theta}}} = \mathbf{I_{\hat{\theta}}}^{-1}$ (matriz de variância e covariância assintótica),
+
+$\mathbf{D_{\hat{\theta}}} = \begin{bmatrix} v_{11} & v_{22} \end{bmatrix}^T$ (matriz com os elementos da diagonal principal de $\mathbf{V_{\hat{\theta}}}$),
+
+$c^{*} = 3.841459$ (quantil do $\chi^2$ com 1 grau de liberdade para $p = 0.05$).
+
+O intervalo de confiança de 95% baseado na aproximação do exercício anterior é obtido por:
+
+$\mathbf{\hat{\theta}} \pm \sqrt{c^{*}\mathbf{D_{\hat{\theta}}}}$
+
+Portanto, os intervalos ficam definidos como
+
+$\hat{c} \pm \sqrt{c^{*}v_{11}}$ e 
+
+$\hat{d} \pm \sqrt{c^{*}v_{22}}$.
+
+
+```{r}
+V <- solve(-H)
+c <- qchisq(0.05, df=1, lower.tail = F)
+
+# Inferior:
+theta_hat - sqrt(c*diag(V))
+
+# Estimativas:
+theta_hat
+
+# Superior:
+theta_hat + sqrt(c*diag(V))
+```
+
+```{r}
+V <- solve(-H)
+c <- qchisq(0.05, df=2, lower.tail = F)
+
+# Inferior:
+theta_hat - sqrt(c*diag(V))
+
+# Estimativas:
+theta_hat
+
+# Superior:
+theta_hat + sqrt(c*diag(V))
+```
+
+
+
+<br>
+<br>
+
+6. Considere que as observações são $y_1 = 3$, $y_2 = 2$, $y_3 = 5$, $y_4 = 6$ e $y_5 = 7$. Forneça a estimativa de máxima verossimilhança com intervalo de 95% de confiança obtido anteriormente.
+
+<hr>
+
+**EMV**
+
+```{r}
+# Estimação de c e d para referência:
+
+# Dados para simulação:
+y <- c(3,2,5,6,7)
+
+# Função densidade de probabilidade Burr Type III
+f <- function(y, c, d) c*d*y^(-c-1)*(1+y^(-c))^(-d-1)
+
+# Estimação dos parâmetros por máxima verossimilhança:
+mle <- MASS::fitdistr(x = y,
+                densfun = f,
+                start = list(c = 1, d = 1),
+                
+                lower = list(c = 0, d = 0))
+
+# Estimativas:
+mle$estimate
+```
+
+Como não consegui isolar $\hat{c}$ em $U_c(\hat{c}, \hat{d}) = 0$, apliquei o método da bisseção para encontrar uma aproximação:
+
+```{r}
+# Implementando a função
+fc <- function(c) {
+  y <- c(3,2,5,6,7)
+  n <- length(y)
+  out <- n/c - sum(log(y)) + (n / sum(log(1 + y^(-c)))) * sum(log(y) / (y^c + 1)) + sum(log(y) / (y^c + 1))
+  return(out)
+}
+
+# Resolvendo numericamente
+resul <- bissecao(fx = fc, a = 1, b = 3, tol = 1e-06)
+resul$Raiz
+
+mle$estimate[['c']]
+```
+
+Portanto, $\hat{c} \approx 2.252269$.
+
+<br>
+
+$\hat{d} = \dfrac{n}{\sum_{i=1}^n \ln(1+y_i^{-\hat{c}})}$
+
+$\hat{d} = \dfrac{5}{\ln(1+3^{-\hat{c}}) + \ln(1+2^{-\hat{c}}) + \ln(1+5^{-\hat{c}}) + \ln(1+6^{-\hat{c}}) + \ln(1+7^{-\hat{c}})}$
+
+$\hat{d} = \dfrac{5}{\ln(1+3^{-2.252269}) + \ln(1+2^{-2.252269}) + \ln(1+5^{-2.252269}) + \ln(1+6^{-2.252269}) + \ln(1+7^{-2.252269})}$
+
+$\hat{d} = \dfrac{5}{\ln(1.084216) + \ln(1.2098937) + \ln(1.02665211) + \ln(1.01767641) + \ln(1.01249142)}$
+
+$\hat{d} = \dfrac{5}{0.08085715 + 0.1905325 + 0.02630313 + 0.017522 + 0.01241405}$
+
+$\hat{d} = \dfrac{5}{0.3276288}$
+
+$\hat{d} \approx 15.26117$
+
+```{r}
+mle$estimate[['d']]
+```
+
+**Intervalo de confiança**
+
+$\mathbf{H_{\mathbf{\hat{\theta}}}} = \begin{bmatrix}
+- \dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2} &  \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1}\\ 
+\sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1} &  -\dfrac{n}{\hat{d}^2}\\ 
+\end{bmatrix}$
+
+$h_{11} = - \dfrac{n}{\hat{c}^2} - (\hat{d} + 1) \sum\limits_{i=1}^n \dfrac{y_i^{\hat{c}} \ln^2(y_i)}{(y_i^{\hat{c}} + 1)^2}$
+
+$h_{11} = - \dfrac{5}{2.252269^2} - (15.26117 + 1) \sum\limits_{i=1}^n \dfrac{y_i^{2.252269} \ln^2(y_i)}{(y_i^{2.252269} + 1)^2}$
+
+$h_{11} = - \dfrac{5}{5.072716} - 16.26117 \left[ \dfrac{11.87423(1.206949)}{12.87423^2} + \dfrac{4.764316 (0.480453)}{5.764316^2} + \dfrac{37.52049 (2.59029)}{38.52049^2} + \dfrac{56.57257 (3.210402)}{57.57257^2} + \dfrac{80.05494 (3.786566)}{81.05494^2} \right]$
+
+$h_{11} = - \dfrac{5}{5.072716} - 16.26117 \left[ \dfrac{14.33159}{165.7458} + \dfrac{2.28903}{33.22734} + \dfrac{97.18895}{1483.828} + \dfrac{181.6207}{3314.601} + \dfrac{303.1333}{6569.903} \right]$
+
+$h_{11} = - \dfrac{5}{5.072716} - 16.26117 (0.08646729 + 0.06888996 + 0.0654988 + 0.05479414 + 0.04613969)$
+
+$h_{11} = - \dfrac{5}{5.072716} - 16.26117(0.3217899)$
+
+$h_{11} = -6.218346$
+
+<br>
+
+$h_{12} = \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{\hat{c}} + 1}$
+
+$h_{12} = \sum\limits_{i=1}^n \dfrac{\ln(y_i)}{y_i^{2.252269} + 1}$
+
+$h_{12} = \dfrac{\ln(3)}{3^{2.252269} + 1} + \dfrac{\ln(2)}{2^{2.252269} + 1} + \dfrac{\ln(5)}{5^{2.252269} + 1} + \dfrac{\ln(6)}{6^{2.252269} + 1} + \dfrac{\ln(7)}{7^{2.252269} + 1}$
+
+$h_{12} = \dfrac{1.098612}{12.87423} + \dfrac{0.6931472}{5.764316} + \dfrac{1.609438}{38.52049} + \dfrac{1.791759}{57.57257} + \dfrac{1.94591}{81.05494}$
+
+$h_{12} = 0.0853341 + 0.120248 + 0.04178135 + 0.03112175 + 0.0240073$
+
+$h_{12} = 0.3024925$
+
+<br>
+
+$h_{21} = h_{12} = 0.3024925$
+
+<br>
+
+$h_{22} = -\dfrac{n}{\hat{d}^2}$
+
+$h_{22} = -\dfrac{5}{15.26117^2}$
+
+$h_{22} = -0.02146814$
+
+<br>
+
+$\mathbf{H_{\mathbf{\hat{\theta}}}} = \begin{bmatrix}
+-6.218346 & 0.3024925\\
+0.3024925 & -0.02146814\\
+\end{bmatrix}$
+
+$\mathbf{I_{\mathbf{\hat{\theta}}}} = -\mathbf{H_{\mathbf{\hat{\theta}}}} = \begin{bmatrix}
+6.218342 & - 0.3024925\\
+- 0.3024925 & 0.02146816\\
+\end{bmatrix}$
+
+$\mathbf{V_{\hat{\theta}}} = \mathbf{I_{\mathbf{\hat{\theta}}}}^{-1} = \begin{bmatrix}
+0.5112118 & 7.203127\\
+7.2031268 & 148.07486\\
+\end{bmatrix}$
+
+$\mathbf{\hat{\theta}} = \begin{bmatrix}
+2.252269 \\
+15.261160\\
+\end{bmatrix}$
+
+$c^{*} = 3.841459$ (quantil do $\chi^2$ com 1 grau de liberdade para $p = 0.05$)
+
+<br>
+
+**Limite inferior:**
+
+$\mathbf{\hat{\theta}} 0 \sqrt{c^{*}\mathbf{V_{\hat{\theta}}}} = \begin{bmatrix}
+2.252269 \\
+15.261170\\
+\end{bmatrix} - \sqrt{3.841459 \cdot \begin{bmatrix}
+0.5112118 \\
+148.0748603\\
+\end{bmatrix}} = \begin{bmatrix}
+0.8509128 \\
+-8.5888505\\
+\end{bmatrix}$
+
+<br>
+
+**Limite superior:**
+
+$\mathbf{\hat{\theta}} + \sqrt{c^{*}\mathbf{V_{\hat{\theta}}}} = \begin{bmatrix}
+2.252269 \\
+15.261170\\
+\end{bmatrix} + \sqrt{3.841459 \cdot \begin{bmatrix}
+0.5112118 \\
+148.0748603\\
+\end{bmatrix}} = \begin{bmatrix}
+3.653625 \\
+39.111191\\
+\end{bmatrix}$
+
+```{r}
+theta_hat <- matrix(c(2.252269, 15.26117), nrow=2)
+
+H <- matrix(c(-6.218346, 0.3024925, 0.3024925, -0.02146814), nrow = 2)
+D <- diag(solve(-H))
+c <- qchisq(0.05, df=2, lower.tail = F)
+
+
+# Limite inferior:
+theta_hat - sqrt(c*D)
+
+# Estimativas:
+theta_hat
+
+# Limite superior:
+theta_hat + sqrt(c*D)
+```
+
+<br>
+<br>
+
+7. Usando a função deviance exata, obtenha usando algum algoritmo numérico o intervalo de confiança baseado na função deviance. Descreva o algoritmo em detalhes e faça as contas usando o computador.
+
+<hr>
+
+Para resolver esta questão, foi utilizado um algoritmo de força bruta para encontrar a combinação de $c$ e $d$ que zeram a expressão, em um grid de valores.
+
+
+$-2 \left[ \left( n\ln (cd) - (c+1)\sum\limits_{i=1}^n \ln(y_i) -(d+1)\sum\limits_{i=1}^n \ln(1+y_i^{-c}) \right) - \left( n\ln (\hat{c}\hat{d}) -(\hat{c}+1)\sum\limits_{i=1}^n \ln(y_i) -(\hat{d}+1)\sum\limits_{i=1}^n \ln(1+y_i^{-\hat{c}}) \right) \right] - c^{*}$, em que
+
+$\hat{c} = 2.252269$,
+
+$\hat{d} = 15.26117$,
+
+$c^{*} = 3.841459$.
+
+
+```{r}
+library(tidyr)
+
+# Criando o grid:
+c <- seq(0.1, 10, 0.01)
+d <- seq(0.1, 80, 0.01)
+df_grid <- as.data.frame(crossing(c, d))
+
+# Criando a função:
+fx <- function(par) {
+  par_hat = c(2.252269, 15.26117)
+  y <- c(3,2,5,6,7)
+  c <- qchisq(0.05, df=1, lower.tail = F)
+  ll <- function(par) sum(log((par[1]*par[2]*y^(-par[1]-1)*(1+y^(-par[1]))^(-par[2]-1))))
+  out <- -2*(ll(par) - ll(par_hat)) - c
+  return(out)
+}
+
+# Aplicando a função em todas as combinações:
+df_grid$obj <- apply(df_grid, 1, function(x) abs(fx(c(x['c'], x['d']))))
+
+# Encontrando a combinação que zerou a função:
+head(df_grid[order(df_grid$obj),], 1)
+
+# Valor da função:
+fx(c(2.58	, 43.35))
+```
+
+Portanto, o intervalo de confiança de 95% fica definido como:
+
+**Limite inferior:**
+
+$\hat{c} - 2.58 =  2.252269 - 2.58 = -0.327731$
+
+$\hat{d} - 43.35 =  15.26117 - 43.35 = -28.08883$
+
+
+**Limite superior:**
+
+$\hat{c} + 2.58 =  2.252269 + 2.58 = 4.832269$
+
+$\hat{d} + 43.35 =  15.26117 + 43.35 = 58.61117$
+
+<br>
+<br>
+
+8. Proponha algum teste de hipótese para testar qualquer um dos parâmetros do modelo.
+
+<hr>
+
+**Teste de Wald**
+
+Definições:
+
+$\hat{\theta} = \hat{d} = 15.26117$
+
+$\theta_0 = 15.1$
+
+Considerando $V(\hat{\theta})$ como o elemento $v_{22}$ da matriz de variância e covariância assintótica $\mathbf{V}_{\hat{\theta}}$ obtida no exercício 6
+
+$\mathbf{V_{\hat{\theta}}} = \begin{bmatrix}
+0.5112118 & 7.203127\\
+7.2031268 & 148.07486\\
+\end{bmatrix}$,
+
+a estatística $Z$ de Wald é obtida pela expressão:
+
+$Z = \dfrac{(\hat{\theta} - \theta_0)}{\sqrt{V(\hat{\theta})}} = \dfrac{(15.26117 - 15.1)}{\sqrt{148.07486}} = 0.01324474$.
+
+<br>
+
+* $H_0$: $\hat{\theta} = \theta_0$
+
+* $H_1$: $\hat{\theta} \neq \theta_0$
+
+Sabendo que a região crítica é construída sob a hipótese nula baseada na distribuição normal padrão, ao nível de 5% de significância aceita-se $H_0$, uma vez que $|Z|$ é menor que o valor crítico de 1.959964.
+
+```{r}
+y <- c(3,2,5,6,7)
+
+# Teste de Wald
+wald <- function(H0, EMV, V.EMV, alpha){
+  critico <- qnorm(1-alpha/2)
+  Tw <- (EMV - H0)/sqrt(V.EMV)
+  print(ifelse(abs(Tw) < critico, "Aceita H0", "Rejeita H0"))
+  return(c(Tw,critico))
+}
+
+wald(H0 = 15.1, EMV = 15.26117, V.EMV = 148.07486, alpha = 0.05)
+
+```
+

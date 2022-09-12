@@ -1,0 +1,706 @@
+---
+title: "Untitled"
+output: html_document
+date: '2022-08-13'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 999)
+library(tidyverse)
+```
+
+# Problema dos testes de diagnóstico
+
+Informacão disponível:
+
+* Teste de varredura (screening) para uma determinada doença
+* Testes são imperfeitos, suponha que acerta 90% dos que tem doença (sensibilidade) e 80% dos que não tem (especificidade)
+* A doençaa ocorre em 2% da populacão (prevalência)
+
+Pergunta de interesse: Se uma pessoa testou positivo, qual a chance de ter a doença? (valor preditivo positivo)
+
+<hr>
+
+* População:
+  - Doentes: 2%
+    - Verdadeiros positivos: 90%
+    - Falsos negativos: 10%
+  - Não doentes: 98%
+    - Verdadeiros negativos: 80%
+    - Falsos positivos: 20%
+    
+<br>
+
+Definção dos eventos:
+
+$D$: ter a determinada doença
+$S$: testar positivo para a determinada doença
+
+<br>
+
+**Teorema de Bayes:**
+
+$P(D \mid S) = \dfrac{P(S \mid D)P(D)}{P(S \mid D)P(D) + P(S \mid D^c)P(D^c)}$
+
+$P(D \mid S) = \dfrac{0.9 \cdot 0.02}{0.9 \cdot 0.02 + 0.2 \cdot 0.98}$
+
+$P(D \mid S) = \dfrac{0.018}{0.018 + 0.196} = 0.08411215$
+
+<br>
+
+**Adaptando a notação:**
+
+* Probabilidade inicial (a priori)
+  * Estado $\theta = 1$ (doente), $\theta = 0$ caso contrário
+  * $P(\theta = 1) = 0.02$
+  * $P(\theta = 0) = 0.98$
+
+* Dado/informação: 
+  * $Y = 1$ se o teste for positivo, $Y = 0$ caso contrário
+  * $P(Y = 1 \mid \theta = 1) = 0.9$
+  * $P(Y = 1 \mid \theta = 0) = 0.2$
+  * $P(Y = 0 \mid \theta = 1) = 0.1$
+  * $P(Y = 0 \mid \theta = 0) = 0.8$
+  
+* Probabilidades atualizadas (a posteriori)
+  * $P(\theta = 1) = 0.08411215$
+  * $P(\theta = 0) = 0.9158879$
+  
+
+<br>
+<br>
+<br>
+
+# Estimando uma proporção
+
+Em uma população (considerada infinita) uma proporção $\theta$ de indivíduos apresenta determinada característica.
+
+Deseja-se:
+
+* Estimar $\theta$;
+* Expressar a incerteza sobre esta estimativa;
+* Verificar se $\theta$ (e portanto a população) ultrapassa 20%
+
+<hr>
+
+Portanto, os objetivos são:
+
+* Estimativa de $\theta$;
+* Expressão da incerteza;
+* Opinião em relação ao valor de interesse ($\theta_0 = 0.2$)
+
+<br>
+
+Considerando a seguinte amostra:
+
+$\mathbf{x} = (0,0,1)^T$
+
+* n = 3
+* y = 1 (indivíduos com a determinada característica)
+
+<br>
+
+Cada indivíduo amostrado é um ensaio de Bernoulli, com função de probabilidade:
+
+$P(X = x \mid \theta) = \theta^{x}(1 - \theta)^{1 - x}$, $x \in \{ 0,1 \}$.
+
+Sendo assim, denotamos $X \sim \text{Ber}(\theta)$.
+
+Considerando $Y$ o número de sucessos em $n$ ensaios de Bernoulli, denotamos $Y \sim \text{Bin}(\theta)$ com função de probabilidade. Para calcular a probabilidade de 1 sucesso em 3 ensaios:
+
+$P(Y = 1 \mid n = 3, \theta) = P(X = 0 \mid \theta) \cdot P(X = 0 \mid \theta) \cdot P(X = 1 \mid \theta) + P(X = 0 \mid \theta) \cdot P(X = 1 \mid \theta) \cdot P(X = 0 \mid \theta) + P(X = 1 \mid \theta) \cdot P(X = 0 \mid \theta) \cdot P(X = 0 \mid \theta)$
+
+$P(Y = y \mid n, \theta) = \binom{n}{y} \theta^{y} (1 - \theta)^{n - y}$
+
+$P(Y = y \mid n, \theta) = \dfrac{n!}{y!(n - y)!} \theta^{y} (1 - \theta)^{n - y}$
+
+<br>
+
+Avaliando a probabilidade de obter $y = 19$ de indivíduos com a característica de interesse, em uma amostra de $n = 80$ indivíduos.
+
+$P(Y = 19 \mid n=80, \theta) = \binom{80}{19} \theta^{19} (1 - \theta)^{80 - 19}$
+
+Como esta probabilidade muda para cada possível valor de $\theta$?
+
+<br>
+
+**Função de verossimilhança:**
+
+$L(\theta \mid n, y)  L(\theta) = \binom{n}{y} \theta^{y} (1 - \theta)^{n - y}$
+
+$L(\theta) = \binom{80}{19} \theta^{19} (1 - \theta)^{80 - 19}$
+
+Qual é a probabilidade de observar $y=19$ em $n = 80$, se o parâmetro populacional fosse $\theta = 0.2375$?
+
+$L(\theta = 0.2375 \mid n = 80, y = 19)  = \binom{80}{19} 0.2375^{19} (1 - 0.2375)^{80 - 19} = 0.1043201$
+
+```{r}
+y = 19
+n = 80
+theta <- seq(0, 1, 0.001)
+
+L_bin <- function(theta, n, y) dbinom(x = y, size = n, prob = theta)
+
+L <- L_bin(theta, n, y)
+df_plot <- data.frame(theta, L)
+df_plot |>
+  ggplot(aes(x = theta, y = L)) +
+  geom_line() +
+  labs(title = 'Função de Verossimilhança', x = expression(theta), y = expression(L)) +
+  xlim(0, 0.5)
+```
+
+**Função de log-verossimilhança:**
+
+$l(\theta) = \ln \left[ L(\theta) \right]$
+
+$l(\theta) = \ln \left[ \binom{n}{y} \theta^{y} (1 - \theta)^{n - y} \right]$
+
+$l(\theta) = \ln\binom{n}{y} + y \ln(\theta) + (n - y) \ln(1 - \theta)$
+
+$l(\theta) =     \ln\binom{80}{19} + 19 \ln(\theta) + (80 - 19) \ln(1 - \theta)$
+
+```{r}
+
+l_bin <- function(theta, n, y) log(L_bin(theta, n, y))
+
+df_plot$l <- l_bin(theta, n, y)
+df_plot |>
+  ggplot(aes(x = theta, y = l)) +
+  geom_line() +
+  labs(title = 'Função de Log-verossimilhança', x = expression(theta), y = expression(l)) +
+  ylim(-50, 0) +
+  xlim(0, 0.8)
+```
+
+**EMV (solução analítica)**
+
+$U(\theta) = \dfrac{d}{d \theta} l(\theta)$
+
+$U(\theta) = \dfrac{d}{d \theta} \left\{ \ln\binom{n}{y} + y \ln(\theta) + (n - y) \ln(1 - \theta) \right\}$
+
+$U(\theta) = \dfrac{y}{\theta} - \dfrac{n-y}{1-\theta}$
+
+<br>
+
+$U(\hat{\theta}) = 0$
+
+$\dfrac{y}{\hat{\theta}} - \dfrac{n-y}{1-\hat{\theta}} = 0$
+
+$\dfrac{y}{\hat{\theta}} = \dfrac{n-y}{1-\hat{\theta}}$
+
+$\dfrac{y(1-\hat{\theta})}{\hat{\theta}} = n-y$
+
+$y(1-\hat{\theta}) = \hat{\theta}(n-y)$
+
+$y - y\hat{\theta} = n\hat{\theta} - y\hat{\theta}$
+
+$n\hat{\theta} = y$
+
+$\hat{\theta} = \dfrac{y}{n}$
+
+<br>
+
+$\hat{\theta} = \dfrac{19}{80} = 0.2375$
+
+```{r}
+theta_hat = y/n
+max_ll <- l_bin(theta_hat, n, y)
+min_ll <- -50
+
+df_plot |>
+  ggplot(aes(x = theta, y = l)) +
+  geom_line() +
+  labs(title = 'Função de Log-verossimilhança', x = expression(theta), y = expression(l)) +
+  ylim(-50, 0) +
+  xlim(0, 0.8) +
+  geom_segment(
+    aes(x = theta_hat, y = min_ll, xend = theta_hat, yend = max_ll),
+    linetype = 'dashed', colour = 'tomato') +
+  geom_segment(
+    aes(x = 0.1, y = max_ll, xend = 0.375, yend = max_ll), 
+    linetype = 'dashed', colour = 'tomato')
+
+```
+
+**EMV (solução numérica)**
+
+```{r}
+n = 80
+y = 19
+fit_ll <- optimize(l_bin, n = n, y = y, interval = c(0,1), maximum = T)
+
+theta_hat <- fit_ll$maximum
+max_ll <- fit_ll$objective
+
+theta_hat
+```
+
+
+**Função de Verossimilhança Relativa:**
+
+```{r}
+LR_bin <- function(theta, n, y, theta_hat) L_bin(theta, n, y) / L_bin(theta_hat, n, y)
+
+LR <- LR_bin(theta, n, y, theta_hat)
+df_plot <- data.frame(theta, LR)
+df_plot |>
+  ggplot(aes(x = theta, y = LR)) +
+  geom_line() +
+  labs(title = 'Verossimilhança Relativa', x = expression(theta), y = expression(L)) +
+  xlim(0, 0.5)
+```
+
+**Deviance**
+
+```{r}
+D_bin <- function(theta, n, y, theta_hat) -2*log(LR_bin(theta, n, y, theta_hat))
+
+D <- D_bin(theta, n, y, theta_hat)
+df_plot <- data.frame(theta, D)
+df_plot |>
+  ggplot(aes(x = theta, y = D)) +
+  geom_line() +
+  labs(title = 'Deviance', x = expression(theta), y = expression(L)) +
+  xlim(0, 0.5)
+```
+
+**Raíz da Deviance**
+
+```{r}
+RD_bin <- function(theta, n, y, theta_hat) sqrt(D_bin(theta, n, y, theta_hat))
+
+RD <- RD_bin(theta, n, y, theta_hat)
+df_plot <- data.frame(theta, RD)
+df_plot |>
+  ggplot(aes(x = theta, y = RD)) +
+  geom_line() +
+  labs(title = 'Raíz da Deviance', x = expression(theta), y = expression(L)) +
+  xlim(0, 0.5)
+```
+
+
+**Erro padrão (solução analítica)**
+
+$\text{s.e.}(\hat{\theta}) = \sqrt{-H(\hat{\theta})^{-1}}$
+
+<br>
+
+$H(\hat{\theta}) = \dfrac{d}{d\hat{\theta}} U(\hat{\theta})$
+
+$H(\hat{\theta}) = \dfrac{d}{d\hat{\theta}} \left[ \dfrac{y}{\hat{\theta}} - \dfrac{n-y}{1-\hat{\theta}} \right]$
+
+$H(\hat{\theta}) = y \dfrac{d}{d\hat{\theta}} \hat{\theta}^{-1} - (n - y) \dfrac{d}{d\hat{\theta}} (1-\hat{\theta})^{-1}$
+
+$H(\hat{\theta}) = -\dfrac{y}{\hat{\theta}^2} - \dfrac{n - y}{(1 - \hat{\theta})^2}$
+
+$H(\hat{\theta}) = - \left( \dfrac{y}{\hat{\theta}^2} + \dfrac{n - y}{(1 - \hat{\theta})^2} \right)$
+
+$H(\hat{\theta}) = - \left( \dfrac{19}{0.2375^2} + \dfrac{80 - 19}{(1 - 0.2375)^2} \right)$
+
+$H(\hat{\theta}) = - \left( 336.8421 + 104.918 \right) = - 441.7601$
+
+<br>
+
+$\text{s.e.}(\hat{\theta}) = \sqrt{441.7601^{-1}} = 0.04757806$
+
+<br>
+
+**Erro padrão (solução numérica)**
+
+```{r}
+
+H <- drop(numDeriv:::hessian(l_bin, x = fit_ll$max, y = y, n = n))
+
+se <- sqrt(-1/H)
+se
+```
+
+**Intervalo de confiança**
+
+Limite inferior: $\hat{\theta} - \text{s.e.}(\hat{\theta}) = 0.2375 - 0.04757806 = 0.1899219$
+
+Limite superior: $\hat{\theta} + \text{s.e.}(\hat{\theta}) = 0.2375 + 0.04757806 = 0.2850781$
+
+```{r}
+theta_hat <- y/n
+theta_inf <- theta_hat - se
+theta_sup <- theta_hat + se
+
+max_L <- L_bin(theta_hat, n, y)
+min_L <- 0
+
+L_inf <- L_bin(theta_inf, n, y)
+L_sup <- L_bin(theta_sup, n, y)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = L)) +
+  geom_line() +
+  labs(title = 'Função de Verossimilhança', x = expression(theta), y = expression(L)) +
+  xlim(0, 0.5) +
+  geom_segment(
+    aes(x = theta_hat, y = min_L, xend = theta_hat, yend = max_L),
+    linetype = 'dashed', colour = 'tomato') +
+  geom_segment(
+    aes(x = theta_inf, y = min_L, xend = theta_inf, yend = L_inf),
+    linetype = 'dashed', colour = 'blue') +
+  geom_segment(
+    aes(x = theta_sup, y = min_L, xend = theta_sup, yend = L_sup),
+    linetype = 'dashed', colour = 'blue')
+```
+<br>
+<br>
+<br>
+
+# Estimando uma proporção (dados imprecisos)
+
+E se o dado fosse um pouco diferente: em 80 indivíduos não se sabe exatamente quantos contém o atributo, mas sabe-se que são entre 13 e 25 indivíduos:
+
+<hr>
+
+$L(\theta \mid 13 \leq Y \leq 25) = P(Y \leq 25) - P(Y \leq 13)$, em que
+
+```{r}
+y1 = 13
+y2 = 25
+
+# Função de verossimilhança para observação intervalar:
+L_bin_i <- function(theta, n, y1, y2) pbinom(y2, size=n, prob=theta) - pbinom(y1-1, size=n, prob=theta)
+
+# Função de log-verossimilhança para observação intervalar:
+l_bin_i <- function(theta, n, y1, y2) log(L_bin_i(theta=theta, n=n, y1=y1, y2=y2))
+
+# Estimativa:
+max_lli <- optimize(l_bin_i,n ,y1, y2, interval=c(0,1), maximum=TRUE)
+max_lli
+
+# Erro padrão:
+sei <- sqrt(-1/drop(numDeriv:::hessian(l_bin_i, x=max_lli$max, n=n, y1=y1, y2=y2)))
+sei
+```
+
+```{r}
+theta_hat <- max_lli$max
+theta_inf <- theta_hat - sei
+theta_sup <- theta_hat + sei
+
+max_L <- L_bin_i(theta_hat, n, y1, y2)
+min_L <- 0
+
+L_inf <- L_bin_i(theta_inf, n, y1, y2)
+L_sup <- L_bin_i(theta_sup, n, y1, y2)
+
+theta <- seq(0, 1, 0.001)
+L <- L_bin_i(theta, n, y1, y2)
+df_plot <- data.frame(theta, L)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = L)) +
+  geom_line() +
+  labs(title = 'Função de Verossimilhança', x = expression(theta), y = expression(L)) +
+  xlim(0, 0.5) +
+  geom_segment(
+    aes(x = theta_hat, y = min_L, xend = theta_hat, yend = max_L),
+    linetype = 'dashed', colour = 'tomato') +
+  geom_segment(
+    aes(x = theta_inf, y = min_L, xend = theta_inf, yend = L_inf),
+    linetype = 'dashed', colour = 'blue') +
+  geom_segment(
+    aes(x = theta_sup, y = min_L, xend = theta_sup, yend = L_sup),
+    linetype = 'dashed', colour = 'blue')
+```
+
+<br>
+<br>
+<br>
+
+# Estimando um parâmetro da distribuição Poisson
+
+Suponha que o número diário de vendas de um produto ($Y$) tem distribuição Poisson e que em um período obteve-se os seguintes valores: $\mathbf{y} = (12, 7, 8, 5, 11, 9, 10, 8)^T$.
+
+$Y \sim \text{Pois}(\lambda)$
+
+$P(Y = y \mid \lambda) = \dfrac{e^{-\lambda} \lambda^y}{y!}$, $y \in \{0, 1, 2, \ldots \}$.
+
+Assumindo que cada valor de $\mathbf{y}$ é independente e identicamente distribuído, temos
+
+**Função de verossimilhança**
+
+$L(\lambda \mid \mathbf{y}) = L(\lambda) = \prod\limits_{i=1}^n P(Y = y_i)$
+
+$L(\lambda) = \prod\limits_{i=1}^n \dfrac{e^{-\lambda} \lambda^{y_i}}{y_i!}$
+
+$L(\lambda) = \dfrac{\prod_{i=1}^n e^{-\lambda} \lambda^{y_i}}{ \prod_{i=1}^n y_i!}$
+
+$L(\lambda) = \dfrac{(e^{-\lambda})^n \prod_{i=1}^n \lambda^{y_i}}{ \prod_{i=1}^n y_i!}$
+
+$L(\lambda) = \dfrac{(e^{-\lambda})^n \lambda^{y_1 + \ldots + y_n}}{ \prod_{i=1}^n y_i!}$
+
+$L(\lambda) = \dfrac{e^{- n\lambda} \lambda^{\sum_{i=1}^n y_i}}{ \prod_{i=1}^n y_i!}$
+
+```{r}
+y <- c(12, 7, 8, 5, 11, 9, 10, 8)
+theta <- seq(1, 20, 0.01)
+
+L_pois <- function(theta, y_i) prod(dpois(x = y, lambda = theta))
+
+f_plot = data.frame(theta = theta)
+df_plot$L <- sapply(df_plot$theta, FUN = L_pois, y_i = y)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = L)) +
+  geom_line() +
+  labs(title = 'Função de Verossimilhança', x = expression(lambda), y = expression(L)) +
+  xlim(3, 15)
+```
+
+**Função de log-verossimilhança**
+
+$l(\lambda \mid \mathbf{y}) = l(\lambda) = \ln \left[ L(\lambda) \right]$
+
+$l(\lambda) = \ln \left[ \dfrac{e^{- n\lambda} \lambda^{\sum_{i=1}^n y_i}}{ \prod_{i=1}^n y_i!} \right]$
+
+$l(\lambda) = \ln \left[ e^{- n\lambda} \lambda^{\sum_{i=1}^n y_i} \right] - \ln \left[ \prod\limits_{i=1}^n y_i! \right]$
+
+$l(\lambda) = -n\lambda \ln(e) + \sum\limits_{i=1}^n y_i \ln(\lambda) - \sum\limits_{i=1}^n \ln(y_i!)$
+
+$l(\lambda) = -n\lambda + \sum\limits_{i=1}^n y_i \ln(\lambda) - \sum\limits_{i=1}^n \ln(y_i!)$
+
+```{r}
+l_pois <- function(theta, y_i) sum(dpois(x = y, lambda = theta, log = T))
+
+df_plot$l <- sapply(df_plot$theta, FUN = l_pois, y_i = y)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = l)) +
+  geom_line() +
+  labs(title = 'Função de Log-verossimilhança', x = expression(lambda), y = expression(l))
+```
+
+**EMV (solução analítica)**
+
+$U(\lambda) = \dfrac{d}{d\lambda} l(\lambda)$
+
+$U(\lambda) = \dfrac{d}{d\lambda} \left[ -n\lambda + \sum\limits_{i=1}^n y_i \ln(\lambda) - \sum\limits_{i=1}^n \ln(y_i!) \right]$
+
+$U(\lambda) = \dfrac{\sum_{i=1}^n y_i}{\lambda} - n$
+
+<br>
+
+$U(\hat{\lambda}) = 0$
+
+$\dfrac{\sum_{i=1}^n y_i}{\hat{\lambda}} - n = 0$
+
+$\dfrac{\sum_{i=1}^n y_i}{\hat{\lambda}} = n$
+
+$\hat{\lambda} = \dfrac{\sum_{i=1}^n y_i}{n}$
+
+$\hat{\lambda} = \dfrac{70}{8} = 8.75$
+
+```{r}
+
+theta_hat <- mean(y)
+max_ll <- l_pois(theta = theta_hat, y_i = y)
+min_ll <- min(df_plot$l)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = l)) +
+  geom_line() +
+  labs(title = 'Função de Log-verossimilhança', x = expression(lambda), y = expression(l)) +
+  geom_segment(
+    aes(x = theta_hat, y = min_ll, xend = theta_hat, yend = max_ll),
+    linetype = 'dashed', colour = 'tomato') +
+  geom_segment(
+    aes(x = 7, y = max_ll, xend = 10.5, yend = max_ll),
+    linetype = 'dashed', colour = 'tomato')
+```
+
+**EMV (solução numérica)**
+
+```{r}
+fit_ll <- optimize(l_pois, y_i = y, interval = c(0,16), maximum = T)
+
+fit_ll
+```
+
+**Erro padrão (solução analítica)**
+
+$\text{s.e.}(\hat{\lambda}) = \sqrt{-H(\hat{\lambda})^{-1}}$
+
+<br>
+
+$H(\hat{\lambda}) = \dfrac{d}{d\hat{\lambda}} U(\hat{\lambda})$
+
+$H(\hat{\lambda}) = \dfrac{d}{d\hat{\lambda}} \left[ \dfrac{\sum_{i=1}^n y_i}{\hat{\lambda}} - n\right]$
+
+$H(\hat{\lambda}) = \sum\limits_{i=1}^n y_i \dfrac{d}{d\hat{\lambda}} \hat{\lambda}^{-1} - \dfrac{d}{d\hat{\lambda}} n$
+
+$H(\hat{\lambda}) = -\dfrac{\sum_{i=1}^n y_i}{\hat{\lambda}^2}$
+
+$H(\hat{\lambda}) = -\dfrac{70}{8.75^2} = - 0.9142857$
+
+<br>
+
+$\text{s.e.}(\hat{\lambda}) = \sqrt{0.9142857^{-1}} = 1.045825$
+
+**Erro padrão (solução numérica)**
+
+```{r}
+H <- drop(numDeriv:::hessian(l_pois, x = fit_ll$max, y_i = y))
+se <- sqrt(-1/H)
+se
+```
+
+<br>
+
+**Intervalo de confiança**
+
+Limite inferior: $\hat{\lambda} - \text{s.e.}(\hat{\lambda}) = 8.75 - 1.045825 = 7.704175$
+
+Limite superior: $\hat{\lambda} + \text{s.e.}(\hat{\lambda}) = 8.75 + 1.045825 = 9.795825$
+
+```{r}
+theta_hat <- mean(y)
+theta_inf <- 7.704175
+theta_sup <- 9.795825
+
+max_L <- L_pois(theta = theta_hat, y_i = y)
+min_L <- min(df_plot$L)
+
+L_inf <- L_pois(theta = theta_inf, y_i = y)
+L_sup <- L_pois(theta = theta_sup, y_i = y)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = L)) +
+  geom_line() +
+  labs(title = 'Função de Verossimilhança', x = expression(lambda), y = expression(L)) +
+  xlim(3, 15) +
+  geom_segment(
+    aes(x = theta_hat, y = min_L, xend = theta_hat, yend = max_L),
+    linetype = 'dashed', colour = 'tomato') +
+  geom_segment(
+    aes(x = theta_inf, y = min_L, xend = theta_inf, yend = L_inf),
+    linetype = 'dashed', colour = 'blue') +
+  geom_segment(
+    aes(x = theta_sup, y = min_L, xend = theta_sup, yend = L_sup),
+    linetype = 'dashed', colour = 'blue')
+```
+
+**Função de verosimilhança relativa**
+
+$\text{LR}(\lambda) = \dfrac{L(\lambda)}{L(\hat{\lambda})}$
+
+```{r}
+LR_pois <- function(theta, y_i, theta_hat) L_pois(theta, y_i) / L_pois(theta_hat, h_i)
+
+df_plot$R <- sapply(df_plot$theta, FUN = LR_pois, y_i = y, theta_hat = theta_hat)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = R)) +
+  geom_line() +
+  labs(title = 'Função de Verossimilhança Relativa', x = expression(lambda), y = expression(LR)) +
+  xlim(3, 15)
+```
+
+**Deviance**
+
+$D(\lambda) = -2 \ln \left[ \text{LR}(\lambda) \right]$
+
+$D(\lambda) = -2 \ln \left[ \dfrac{L(\lambda)}{L(\hat{\lambda})} \right]$
+
+$D(\lambda) = -2\left[ \ln L(\lambda) - \ln L(\hat{\lambda}) \right]$
+
+$D(\lambda) = -2\left[ l(\lambda) - l(\hat{\lambda}) \right]$
+
+```{r}
+D_pois <- function(theta, y_i, theta_hat) -2*log(LR_pois(theta, y_i, theta_hat))
+
+df_plot$D <- sapply(df_plot$theta, FUN = D_pois, y_i = y, theta_hat = theta_hat)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = D)) +
+  geom_line() +
+  labs(title = 'Deviance', x = expression(lambda), y = expression(D)) +
+  xlim(0, 20)
+```
+
+**Raíz da Deviance**
+
+$RD(\lambda) = \sqrt{D(\lambda)}$
+
+$RD(\lambda) = \sqrt{-2\left[ l(\lambda) - l(\hat{\lambda}) \right]}$
+
+```{r}
+RD_pois <- function(theta, y_i, theta_hat) sqrt(D_pois(theta, y_i, theta_hat))
+
+df_plot$RD <- sapply(df_plot$theta, FUN = RD_pois, y_i = y, theta_hat = theta_hat)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = RD)) +
+  geom_line() +
+  labs(title = 'Raíz da Deviance', x = expression(lambda), y = expression(RD)) +
+  xlim(0, 20)
+```
+
+# Estimando um parâmetro da distribuição Poisson com observações imprecisas
+
+Suponha que o número diário de vendas de um produto ($Y$) tem distribuição Poisson e que em um período obteve-se os seguintes valores: $\mathbf{y} = (7, 8, 5, 11, 9, 10, 8)^T$, além de $k$, uma observação imprecisa com valor $9 \leq k \leq 15$. 
+
+$L(\lambda \mid \mathbf{y}) = L(\lambda) = \prod\limits_{i=1}^n P(Y = y_i) \cdot \left[ P(Y \leq 15) - P(Y \leq 9)\right]$
+
+```{r}
+yi <- c(7, 8, 5, 11, 9, 10, 8)
+k1 <- 9
+k2 <- 15
+theta <- seq(1, 20, 0.01)
+
+# Função de verossimilhança:
+L_pois_i <- function(theta, y_i, k1, k2) {
+  a <- prod(dpois(x = y, lambda = theta))
+  b <- ppois(q = y2, lambda = theta) - ppois(q = y1-1, lambda = theta)
+  return(a*b)
+}
+
+# Função de log-verossimilhança:
+l_pois_i <- function(theta, y_i, k1, k2) log(L_pois_i(theta, y_i, k1, k2))
+
+
+# Estimativa:
+max_lli <- optimize(l_pois_i, yi, k1, k2, interval=c(0,20), maximum=TRUE)
+max_lli
+
+# Erro padrão:
+sei <- sqrt(-1/drop(numDeriv:::hessian(l_pois_i, x=max_lli$max, y_i=y_i, k1=k1, k2=k2)))
+sei
+
+theta_hat <- max_lli$max
+theta_inf <- theta_hat - sei
+theta_sup <- theta_hat + sei
+
+max_L <- L_pois_i(theta = theta_hat, yi, k1, k2)
+min_L <- 0
+
+L_inf <- L_pois_i(theta = theta_inf, y_i, k1, k2)
+L_sup <- L_pois_i(theta = theta_sup, y_i, k1, k2)
+  
+df_plot = data.frame(theta = theta)
+df_plot$L <- sapply(df_plot$theta, FUN = L_pois_i, y_i = y, k1 = k1, k2 = k2)
+
+df_plot %>%
+  ggplot(aes(x = theta, y = L)) +
+  geom_line() +
+  labs(title = 'Função de Verossimilhança', x = expression(lambda), y = expression(L)) +
+  xlim(3, 15) +
+  geom_segment(
+    aes(x = theta_hat, y = min_L, xend = theta_hat, yend = max_L),
+    linetype = 'dashed', colour = 'tomato') +
+  geom_segment(
+    aes(x = theta_inf, y = min_L, xend = theta_inf, yend = L_inf),
+    linetype = 'dashed', colour = 'blue') +
+  geom_segment(
+    aes(x = theta_sup, y = min_L, xend = theta_sup, yend = L_sup),
+    linetype = 'dashed', colour = 'blue')
+```
+
+

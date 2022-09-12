@@ -1,0 +1,1106 @@
+---
+title: "Untitled"
+output: html_document
+date: '2022-08-21'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 999)
+library(tidyverse)
+library(kableExtra)
+```
+
+# 1. Teorema de Bayes
+
+## Exemplo 1.1
+
+Um procedimento de testes de diagnóstico para HIV é aplicado a uma população de alto risco; acredita-se que 10% desta população é positiva para o HIV. O teste de diagnóstico é positivo para 90% das pessoas que de fato são HIV-positivas, e negativo para 85% das pessoas que não são HIV-positivas. Qual a probabilidade de resultados falso-positivo e falso-negativo?
+
+$A$: a pessoa é HIV-positiva,
+
+$B$: o resultado do teste é positivo.
+
+
+* $P(A) = 0.1$
+  +  $P(B \mid A) = 0.9$
+  +  $P(B^c \mid A) = 0.1$
+
+* $P(A^c) = 0.9$
+  + $P(B^c \mid A^c) = 0.85$
+  + $P(B \mid A^c) = 0.15$
+  
+  
+**Falso-positivo:** 
+
+$P(A^c \mid B) = \dfrac{P(B \mid A^c)P(A^c)}{P(B)}$
+
+$P(A^c \mid B) = \dfrac{0.15 \times 0.9}{0.9 \times 0.1 + 0.15 \times 0.9}$
+
+$P(A^c \mid B) = \dfrac{0.135}{0.09 + 0.135} = 0.6$
+
+<br>
+
+**Falso-negativo:**
+
+$P(A \mid B^c) = \dfrac{P(B^c \mid A)P(A)}{P(B^c)}$
+
+$P(A \mid B^c) = \dfrac{0.1 \times 0.1}{0.1 \times 0.1 + 0.85 \times 0.9}$
+
+$P(A \mid B^c) = \dfrac{0.01}{0.01 + 0.765} = 0.01290323$
+
+<br>
+
+## Exemplo 1.2
+
+Em uma sacola há seis bolas de cores desconhecidas. Três bolas são retiradas sem reposição e verifica-se que são pretas. Encontre a probabilidade de que não hajam bolas pretas restantes na urna.
+
+$Y$: número de bolas pretas entre três retiradas,
+
+$y$: valor observado $Y = 3$
+
+$\theta$: número de bolas pretas na sacola, $\theta \in \{0,1,\ldots,n\}$
+
+$n$: número de bolas na sacola.
+
+<br>
+
+Para não haver mais bolas pretas restantes na urna, $\theta = 3$, denotado por $\theta_3$.
+
+Pelo Teorema de Bayes:
+
+$P(\theta_3 \mid y) = \dfrac{P(y \mid \theta_3)P(\theta_3)}{\sum_{i=0}^6 P(y \mid \theta_i)P(\theta_i)}$
+
+Quais valores atribuímos para $P(\theta_i)$ ?
+
+Considerando que são equiprováveis, $P(\theta_0) = \ldots = P(\theta_6) = 1/7 = 0.1428571$
+
+$P(\theta_3 \mid y) = \dfrac{P(y \mid \theta_3)P(\theta_3)}{\sum_{i=0}^6 P(y \mid \theta_i)P(\theta_i)}$
+
+<br>
+
+$P(Y = 3 \mid \theta = 0) = 0$
+
+$P(Y = 3 \mid \theta = 1) = 0$
+
+$P(Y = 3 \mid \theta = 2) = 0$
+
+$P(Y = 3 \mid \theta = 3) = \dfrac{3}{6} \times \dfrac{2}{5} \times \dfrac{1}{4} = \dfrac{6}{120} = 0.05$
+
+$P(Y = 3 \mid \theta = 4) = \dfrac{4}{6} \times \dfrac{3}{5} \times \dfrac{2}{4} = \dfrac{24}{120} = 0.2$
+
+$P(Y = 3 \mid \theta = 5) = \dfrac{5}{6} \times \dfrac{4}{5} \times \dfrac{3}{4} = \dfrac{60}{120} = 0.5$
+
+$P(Y = 3 \mid \theta = 6) = 1$
+
+<br>
+
+$P(\theta_3 \mid y) = \dfrac{P(y \mid \theta_3)P(\theta_3)}{\sum_{i=0}^6 P(y \mid \theta_i)P(\theta_i)}$
+
+$P(\theta_3 \mid y) = \dfrac{0.05 \times 0.1428571}{0.1428571 (0 + 0 + 0 + 0.05 + 0.2 + 0.5 + 1)}$
+
+$P(\theta_3 \mid y) = \dfrac{0.007142855}{0.2499999} = 0.02857143$
+
+<br>
+
+Portanto, os dados atualizaram a opinião prévia:
+
+$P(\theta_3) = 0.1428571$ (a priori)
+
+$P(\theta_3) = 0.02857143$ (a posteriori)
+
+<br>
+
+Calculando a posteriori para todos os possíveis valores de $\theta$:
+
+$P(\theta_0 \mid y) = \dfrac{0 \times 0.1428571}{0.2499999} = 0$
+
+$P(\theta_1 \mid y) = \dfrac{0 \times 0.1428571}{0.2499999} = 0$
+
+$P(\theta_2 \mid y) = \dfrac{0 \times 0.1428571}{0.2499999} = 0$
+
+$P(\theta_4 \mid y) = \dfrac{0.2 \times 0.1428571}{0.2499999} = 0.1142857$
+
+$P(\theta_5 \mid y) = \dfrac{0.5 \times 0.1428571}{0.2499999} = 0.2857143$
+
+$P(\theta_6 \mid y) = \dfrac{1 \times 0.1428571}{0.2499999} = 0.5714286$
+
+```{r}
+theta = 0:6
+priori = rep(1/7, 7)
+posteriori = c(0, 0, 0, 0.02857143, 0.1142857, 0.2857143, 0.5714286)
+df = data.frame(theta, priori, posteriori)
+
+df %>% 
+  pivot_longer(!theta, names_to = 'label', values_to = 'prob') %>%
+  ggplot(aes(x = theta, y = prob, fill = label)) +
+  geom_col(position = "dodge") +
+  labs(x = expression(theta), y = expression(P(theta*'|'*y)))
+
+
+```
+
+# 2. Atualização Bayesiana
+
+Essência da abordagem Bayesiana
+
+  * Tratar o parâmetro $\theta$ como uma variável aleatória
+  * Especificar uma distribuição a priori para $\theta$ (convicções sobre $\theta$ antes de ver os dados)
+  * Atualizar as convições por meio do Teorema de Bayes e fazer inferências
+  
+Teorema de Bayes expresso em termos de variáveis aleatórias:
+
+$f(\theta \mid y) = \dfrac{f(\theta)f(y \mid \theta)}{f(y)} = \dfrac{f(\theta)f(y \mid \theta)}{\int f(\theta) f(y \mid \theta) d \theta}$
+
+**Caso Y contínuo**: $f$ é a função densidade de probabilidade
+
+**Caso Y discreto**: $f$ é a função de massa de probabilidade $P(Y = y)$
+
+**Caso $\theta$ discreto**: $\int f(\theta) f(y \mid \theta) d \theta = \sum\limits_{j} f(\theta_j) f(y \mid \theta_j)$
+
+Portanto,
+
+$\text{posteriori} = \dfrac{\text{priori} \times \text{verossimilhança}}{\text{marginal}}$
+
+Como o denominador é uma função apenas de $y$, resultante de uma integração em $\theta$,
+
+$f(\theta \mid y) \propto f(\theta)f(y \mid \theta)$
+
+*"a posteriori é proporcional à priori vezes a verossimilhança"*
+
+<br>
+
+## Exemplo 2.1
+
+Quando uma máquina em particular se torna defeituosa, a causa pode ser atribuída a uma falha no motor ou a uma falha na transmissão. A localização da falha só pode ser determinada desmontando-se a máquina. Entretanto, a alha gera três tipos de sintomas observáveis: apenas aquecimento (AQ), tração irregular (TI), ou ambas. Registros anteriores foram usados para estabelecer as probabilidades na tabela abaixo. Além disto, sabe-se que 60% das falhas em máquinas deste tipo são devidas a transmissão, portanto $f(\theta_2) = 0.6$. Obtenha a distribuição a posteriori $f(\theta \mid y)$ e interprete adequadamente os resultados.
+
+```{r, echo=FALSE}
+falha = c('Motor', 'Transmissão')
+aq = c(0.1, 0.5)
+ti = c(0.4, 0.3)
+ambas = c(0.5, 0.2)
+df = data.frame(aq, ti, ambas)
+row.names(df) = falha
+
+df %>%
+  kbl(col.names = c('AQ ($y_1$)', 'TI ($y_2$)', 'Ambas ($y_3$)')) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```   
+
+$f(\theta \mid y) = \dfrac{f(\theta)f(y \mid \theta)}{f(y)}$
+
+$f(y) = \sum\limits_{i=1}^2 f(\theta_i) f(y \mid \theta_i)$
+
+Sabendo que
+
+$f(y \mid \theta) = \dfrac{f(y, \theta)}{f(\theta)} \implies f(y, \theta) = f(\theta)f(y \mid \theta)$
+
+Reescrevemos
+
+$f(y) = \sum\limits_{i=1}^2 f(y, \theta_i)$
+
+Logo,
+
+$f(\theta \mid y) = \dfrac{f(\theta)f(y \mid \theta)}{\sum_{i=1}^2 f(y, \theta_i)}$
+
+<br>
+
+$\theta_1$: Motor
+
+$\theta_2$: Transmissão
+
+$y_1$: Aquecimento (AQ)
+
+$y_2$: Tração irregular (TI)
+
+$y_3$: Ambos
+
+<br>
+
+$$f(y_j \mid \theta_i) = \dfrac{f(y_j, \theta_i)}{f(\theta_i)}$$
+
+```{r, echo=FALSE}
+theta = c(0.4, 0.6)
+
+y1 = c(0.1, 0.5)
+y2 = c(0.4, 0.3)
+y3 = c(0.5, 0.2)
+
+df = data.frame(theta, y1, y2, y3)
+
+col_names = c('$f(\\theta_i)$', '$f(y_1 \\mid \\theta_i)$', '$f(y_2 \\mid \\theta_i)$', '$f(y_3 \\mid \\theta_i)$')
+
+df %>%
+  kbl(col.names = col_names) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+<br>
+
+$$f(y_j, \theta_i) = f(y_j)f(\theta_i)$$
+
+```{r, echo=FALSE}
+
+y1_ = theta * y1
+y2_ = theta * y2
+y3_ = theta * y3
+df = data.frame(y1_, y2_, y3_)
+
+col_names = c('$f(y_1, \\theta_i)$', '$f(y_2, \\theta_i)$', '$f(y_3, \\theta_i)$')
+
+df %>%
+  kbl(col.names = col_names) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+<br>
+
+$$f(y) = \sum\limits_{i=1}^2 f(y, \theta_i)$$
+
+```{r, echo=FALSE}
+
+y1__ = c(sum(y1_))
+y2__ = c(sum(y2_))
+y3__ = c(sum(y3_))
+df = data.frame(y1__, y2__, y3__)
+
+col_names = c('$f(y_1)$', '$f(y_2)$', '$f(y_3)$')
+
+df %>%
+  kbl(col.names = col_names) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+<br>
+
+$$f(\theta_i \mid y_j) = \dfrac{f(y_j, \theta_i)}{f(y_j)}$$
+
+```{r, echo=FALSE}
+
+y1___ = y1_ / y1__
+y2___ = y2_ / y2__
+y3___ = y3_ / y3__
+
+df = data.frame(y1___, y2___, y3___)
+
+col_names = c('$f(\\theta \\mid y_1)$', '$f(\\theta \\mid y_2)$', '$f(\\theta \\mid y_3)$')
+
+df %>%
+  kbl(col.names = col_names) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+<br>
+
+**Interpretação por meio das chances (odds)**
+
+$r = \dfrac{p}{1-p}$
+
+$r_{\theta_2} = \dfrac{0.6}{1 - 0.6} = 1.5$ ou $3:2$
+
+Em outras palavras, antes de termos a informação sobre $Y$, as chances eram de $3:2$ a favor $\theta_2$.
+
+Entretanto, após observar $Y$,
+
+$r_{\theta_2 \mid y_1} = \dfrac{0.8823529}{1 - 0.8823529} = 7.5$ ou $15:2$ (quando $y = y_1$)
+
+$r_{\theta_2 \mid y_2} = \dfrac{0.5294118}{1 - 0.5294118} = 1.125$ ou $9:8$ (quando $y = y_2$)
+
+$r_{\theta_2 \mid y_2} = \dfrac{0.375}{1 - 0.375} = 0.6$ ou $3:5$ (quando $y = y_3$)
+
+Se o critério de decisão é selecionar o diagnóstico de causa de falha mais plausível, observar aquecimento no motor ou tração irregular levaria à decisão de que a falha seria na transmissão. No entanto, observando ambos os sintomas levaria à decisão de que a falha seria no motor.
+
+<br>
+
+## Exemplo 2.2
+
+Suponha o modelo $Y \sim \text{Bin}(n,\theta)$, e que deseja-se fazer inferências sobre $\theta$.
+
+$f(y \mid \theta) = \binom{n}{y} \theta^y (1 - \theta)^{n-y}$, $y \in \{0, \ldots, n\}$
+
+$L(\theta \mid y) \propto \theta^y (1 - \theta)^{n-y}$, $0 < \theta < 1$
+
+<br>
+
+A escolha da distribuição a priori para $\theta$ depende do conhecimento prévio sobre a situação.
+
+Escolher uma distribuição a priori da mesma familia que se aproxime das opiniões prévias dará origem a computações simplificadas.
+
+Supondo que as opiniões a priori podem ser representadas por uma distribuição beta:
+
+$\theta \sim \text{Beta}(p,q)$, tal que
+
+$f(\theta) = \dfrac{\Gamma (p+q)}{\Gamma(p) \Gamma(q)} \theta^{p-1} (1 - \theta)^{q-1}$
+
+$f(\theta) \propto \theta^{p-1} (1 - \theta)^{q-1}$, $0 < \theta < 1$
+
+Pelo Teorema de Bayes,
+
+$\text{posteriori} = \dfrac{\text{priori} \times \text{verossimilhança}}{\text{marginal}}$
+
+Como o denominador é uma função apenas de $y$, resultante de uma integração em $\theta$,
+
+$\text{posteriori} \propto \text{priori} \times \text{verossimilhança}$
+
+$f(\theta \mid y) \propto f(\theta)f(y \mid \theta)$
+
+$f(\theta \mid y) \propto \theta^{p-1} (1 - \theta)^{q-1} \times \theta^y (1 - \theta)^{n-y}$
+
+$f(\theta \mid y) \propto \theta^{y+p-1} (1 - \theta)^{n-y+q-1}$
+
+Portanto, observa-se que 
+
+$\theta \mid y \sim \text{Beta}(p+y, q+n-y)$
+
+<br>
+
+**Exemplo numérico**:
+
+Considere o conjunto de dados “CANCER” tomado do programa First Bayes (http://tonyohagan.co.uk/1b/). O problema consiste em estimar a proporção de sobreviventes, além de um período especificado, entre pacientes que recebem tratamento segundo um novo protocolo para uma particular forma de câncer. Denote por $\theta$ a probabilidade de sobrevivência dos pacientes, que é o parâmetro de interesse para inferência. Consultas com médicos especialistas, que são familiarizados com ensaios clínicos similares os levam a expressar o conhecimento a priori que $E(\theta) = 0.4$ e $\text{Var}(\theta) = 0.02$. Agora, se a distribuição beta é considerada razoável para representar os conhecimentos prévios, então deve-se escolher uma distribuição a priori $\theta \sim \text{Beta}(p,q)$ tal que $E(\theta) = 0.4$ e $\text{Var}(\theta) = 0.02$. 
+
+$E(\theta) = \dfrac{p}{p+q} = 0.4$
+
+$\text{Var}(\theta) = \dfrac{pq}{(p+q)^2(p+q+1)} = 0.02$
+
+Considerando $m = E(\theta)$ e $v = \text{Var}(\theta)$, temos
+
+$p = \dfrac{(1 - m)m^2}{v} = 4.4$ e $q = \dfrac{(1-m)^2m}{v}-(1-m) = 6.6$ especificando a distribuição da priori para $\theta$.
+
+Dados: Dos 70 pacientes que receberam o tratamento, 34 sobreviveram além do período definido previamente. 
+
+Distribuição posteriori:
+
+$\theta \mid y \sim \text{Beta}(p+y, q+n-y)$
+
+$\theta \mid y \sim \text{Beta}(4.4+34, 6.6+70-34)$
+
+$\theta \mid y \sim \text{Beta}(38.4, 42.6)$, portanto,
+
+$E(\theta \mid y) = \dfrac{38.4}{38.4 + 42.6} = 0.4740741$
+
+Observa-se que o efeito dos dados observados foi aumentar a estimativa à priori de $\theta$.
+
+```{r, echo=FALSE}
+curve(dbeta(x, 38.4, 42.6), from = 0, to = 1, n = 1001, xlab = expression(theta), ylab = expression(paste("P[", theta, "|y]")))
+
+curve(dbeta(x, 4.4, 6.6), from = 0, to = 1, add = TRUE, col = 2, lty = 3, lwd = 1.5, n = 1001)
+
+abline(v = 34/70, lty = 2, col = 4)
+
+curve(dbeta(x, 34 + 1, 70 - 34 + 1), from = 0, to = 1, add = TRUE, col = 4,
+lty = 2, n = 1001)
+
+legend("topright", c("priori", "verossimilhança", "posteriori"), lty = c(3,
+2, 1), col = c(2, 4, 1), lwd = c(1.5, 1, 1))
+
+```
+
+<br>
+
+## Exemplo 2.3
+
+
+Suponha que $Y_1,\ldots,Y_n$ são um conjunto de variáveis aleatórias independentes com distribuição Poisson $Y \mid \theta \sim P(\theta)$. Tem-se que a verossimilhança é obtida pela expressão da distribuição conjunta que neste caso é:
+
+$L(\theta \mid y) = \prod\limits_{i=1}^n f(y_i \mid \theta)$
+
+$L(\theta \mid y) = \prod\limits_{i=1}^n \dfrac{e^{-\theta}\theta^{y_i}}{y_i!}$
+
+$L(\theta \mid y) = \dfrac{e^{-n\theta}\theta^{\sum_{i=1}^n y_i}}{ \prod_{i=1}^n y_i!}$
+
+$L(\theta \mid y) \propto e^{-n\theta}\theta^{\sum_{i=1}^n y_i}$
+
+Observa-se que a expressão da verossimilhança corresponde ao núcleo de uma distribuição Gama.
+
+Logo,
+
+$\theta \sim \text{Ga}(p, q)$, e então
+
+$f(\theta) = \dfrac{q^p}{\Gamma(p)}\theta^{p-1}e^{-q\theta}$, em que $\theta > 0$.
+
+Pelo Teorema de Bayes temos
+
+$f(\theta \mid y) \propto f(\theta) f(y \mid \theta)$
+
+$f(\theta \mid y) \propto f(\theta) L(\theta \mid y)$
+
+$f(\theta \mid y) \propto \dfrac{q^p}{\Gamma(p)}\theta^{p-1}e^{-q\theta} \times e^{-n\theta}\theta^{\sum_{i=1}^n y_i}$
+
+$f(\theta \mid y) \propto \dfrac{q^p}{\Gamma(p)}\theta^{p + \sum_{i=1}^n y_i - 1} e^{-q\theta -n\theta}$
+
+$f(\theta \mid y) \propto \dfrac{q^p}{\Gamma(p)}\theta^{p + \sum_{i=1}^n y_i - 1} e^{-\theta(q + n)}$
+
+$f(\theta \mid y) \propto \theta^{p + \sum_{i=1}^n y_i - 1} e^{-\theta(q + n)}$
+
+Portanto,
+
+$\theta \mid y \sim \text{Ga}(p + \sum_{i=1}^n y_i, q + n)$
+
+<br>
+
+**Exemplo numérico**:
+
+Seja $\theta$ o número de gansos de um bando dentro de uma determinada região. Supõe-se que a média e a variância a priori para $\theta$ são 100 e 20, respectivamente. 
+
+Considerando $\theta \sim \text{Ga}(p,q)$, temos
+
+$E(\theta) = \dfrac{p}{q}$
+
+$100 = \dfrac{p}{q}$
+
+$p = 100q$
+
+<br>
+
+$\text{Var}(\theta) = \dfrac{p}{q^2}$
+
+$20 = \dfrac{100q}{q^2}$
+
+$20 = \dfrac{100}{q}$
+
+$q = 5$
+
+<br>
+
+$p = 100(5) = 500$
+
+<br>
+
+Ou seja, fica definida a priori como $\theta \sim \text{Ga}(500, 5)$.
+
+Os dados provêm de fotografias aéreas detalhadas de 45 bandos que fornecem $\sum_{i=1}^45 y_i = 4019$.
+
+Portanto, fica definida a posteriori como 
+
+$\theta \mid y \sim \text{Ga}(P + \sum_{i=1}^n y_i, q + n)$
+
+$\theta \mid y \sim \text{Ga}(500 + 4019, 5 + 45)$
+
+$\theta \mid y \sim \text{Ga}(4519, 50)$
+
+```{r, echo=FALSE}
+curve(dgamma(x, 4519, 50), from = 80, to = 115, n = 1001, xlab = expression(theta), ylab = expression(paste("P[", theta, "|y]")))
+
+curve(dgamma(x, 500, 5), from = 80, to = 115, n = 1001, add = TRUE, lty = 3, lwd = 1.5, col = 2)
+
+curve(dgamma(x, 4019 + 1, 45), from = 80, to = 115, n = 1001, add = TRUE, lty = 2, col = 4)
+
+legend("topright", c("priori", "verossimilhança", "posteriori"), lty = c(3, 2, 1), col = c(2, 4, 1), lwd = c(1.5, 1, 1))
+```
+
+
+<br>
+
+## Exemplo 2.4
+
+Suponha que $Y_1,\ldots,Y_n$ são um conjunto de variáveis aleatórias independentes com distribuição $N(\theta, \sigma^2)$, em que $\sigma^2$ é conhecido. Então,
+
+$f(y_i \mid \theta) = \dfrac{1}{\sqrt{2 \pi \sigma^2}}\exp\left\{-\dfrac{(y_i - \theta)^2}{2\sigma^2}\right\}$, e a verossimilhança fica
+
+$L(\theta \mid y) = \prod\limits_{i=1}^n \dfrac{1}{\sqrt{2 \pi \sigma^2}}\exp\left\{-\dfrac{(y_i - \theta)^2}{2\sigma^2}\right\}$
+
+$L(\theta \mid y) = \prod\limits_{i=1}^n (2 \pi \sigma^2)^{-1/2}\exp\left\{-\dfrac{(y_i - \theta)^2}{2\sigma^2}\right\}$
+
+$L(\theta \mid y) = (2 \pi \sigma^2)^{-n/2} \prod\limits_{i=1}^n \exp\left\{-\dfrac{(y_i - \theta)^2}{2\sigma^2}\right\}$
+
+$L(\theta \mid y) = (2 \pi \sigma^2)^{-n/2} \exp\left\{-\sum\limits_{i=1}^n \dfrac{(y_i - \theta)^2}{2\sigma^2}\right\}$
+
+$L(\theta \mid y) = (2 \pi \sigma^2)^{-n/2} \exp\left\{\dfrac{-\sum_{i=1}^n (y_i - \theta)^2}{2\sigma^2}\right\}$
+
+$L(\theta \mid y) \propto \exp\left\{\dfrac{-\sum_{i=1}^n (y_i - \theta)^2}{2\sigma^2}\right\}$
+
+Após algum algebrismo,
+
+$L(\theta \mid y) \propto \exp\left\{ - \dfrac{(\theta - \overline{y})^2}{2(\sigma^2/n)} \right\}$, que corresponde ao núcleo de uma distribuição $N(\overline{y}, \sigma^2/n)$.
+
+Supondo que as convicções a priori sobre $\theta$ podem elas mesmas serem representadas por uma distribuição normal $\theta \sim N(b, d^2)$.
+
+Pelo Teorema de Bayes, temos:
+
+$\text{posteriori} \propto \text{priori} \times \text{verossimilhança}$
+
+$f(\theta \mid y) \propto f(\theta)f(y \mid \theta)$
+
+$f(\theta \mid y) \propto \exp\left\{ -\dfrac{(\theta - b)^2}{2d^2} \right\} \times \exp\left\{ -\dfrac{(\theta - \overline{y})^2}{2(\sigma^2/n)} \right\}$
+
+Considerando $\sigma^2/n = c^2$
+
+$f(\theta \mid y) \propto \exp\left\{ -\dfrac{(\theta - b)^2}{2d^2} \right\} \times \exp\left\{ -\dfrac{(\theta - \overline{y})^2}{2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{(\theta - b)^2}{2d^2} - \dfrac{(\theta - \overline{y})^2}{2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \dfrac{(\theta - b)^2}{d^2} + \dfrac{(\theta - \overline{y})^2}{c^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \dfrac{c^2(\theta - b)^2 + d^2(\theta - \overline{y})^2}{c^2d^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \dfrac{c^2(\theta^2 - 2\theta b + b^2) + d^2(\theta^2 - 2 \theta \overline{y} + \overline{y}^2)}{c^2d^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \dfrac{c^2 \theta^2 - 2 c^2 \theta b + c^2 b^2 + d^2 \theta^2 - 2 d^2 \theta \overline{y} + d^2 \overline{y}^2}{c^2d^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \dfrac{c^2 \theta^2}{c^2d^2} - \dfrac{2 c^2 \theta b}{c^2d^2} + \dfrac{c^2 b^2}{c^2d^2} + \dfrac{d^2 \theta^2}{c^2d^2} - \dfrac{2 d^2 \theta \overline{y}}{c^2d^2} + \dfrac{d^2 \overline{y}^2}{c^2d^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \dfrac{\theta^2}{d^2} - \dfrac{2 \theta b}{d^2} + \dfrac{b^2}{d^2} + \dfrac{\theta^2}{c^2} - \dfrac{2 \theta \overline{y}}{c^2} + \dfrac{\overline{y}^2}{c^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \dfrac{\theta^2}{d^2} + \dfrac{\theta^2}{c^2} - \dfrac{2 \theta b}{d^2}  - \dfrac{2 \theta \overline{y}}{c^2} + \dfrac{b^2}{d^2} + \dfrac{\overline{y}^2}{c^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \left( \dfrac{1}{d^2} + \dfrac{1}{c^2} \right)\theta^2 - \left(\dfrac{b}{d^2}  + \dfrac{\overline{y}}{c^2} \right)2 \theta + \dfrac{b^2}{d^2} + \dfrac{\overline{y}^2}{c^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left[ \left( \dfrac{1}{d^2} + \dfrac{1}{c^2} \right)\theta^2 - \left(\dfrac{b}{d^2}  + \dfrac{\overline{y}}{c^2} \right)2 \theta \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left( \dfrac{1}{d^2} + \dfrac{1}{c^2} \right)\theta^2 + \dfrac{1}{2} \left(\dfrac{b}{d^2}  + \dfrac{\overline{y}}{c^2} \right)2 \theta \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{ - \dfrac{1}{2} \left( \dfrac{1}{d^2} + \dfrac{1}{c^2} \right)\theta^2 + \left(\dfrac{b}{d^2}  + \dfrac{\overline{y}}{c^2} \right) \theta \right\}$
+
+Não consegui desenvolver até chegar em
+
+$f(\theta \mid y) \propto \exp \left\{ -\dfrac{1}{2}\left( \dfrac{1}{d^2} + \dfrac{1}{c^2}\right) \left[ \left( \theta - \dfrac{\frac{b}{d^2} + \frac{\overline{y}}{c^2}}{\frac{1}{d^2} + \frac{1}{c^2}}\right)^2 \right] \right \}$
+
+Sendo assim, a posteriori fica definida como
+
+$\theta \mid y \sim N \left(\dfrac{\frac{b}{d^2} + \frac{\overline{y}}{c^2}}{\frac{1}{d^2} + \frac{1}{c^2}}, \dfrac{1}{\frac{1}{d^2} + \frac{1}{c^2}} \right)$
+
+$\theta \mid y \sim N \left(\dfrac{\frac{b}{d^2} + \frac{\overline{y}}{\sigma^2/n}}{\frac{1}{d^2} + \frac{1}{\sigma^2/n}}, \dfrac{1}{\frac{1}{d^2} + \frac{1}{\sigma^2/n}} \right)$
+
+$\theta \mid y \sim N \left(\dfrac{\frac{b}{d^2} + \frac{n\overline{y}}{\sigma^2}}{\frac{1}{d^2} + \frac{n}{\sigma^2}}, \dfrac{1}{\frac{1}{d^2} + \frac{n}{\sigma^2}} \right)$
+
+Considerando $\tau = 1/\sigma^2$ e $g = 1/d^2$, onde "precisão" é o recíproco da variância, temos
+
+$\theta \mid y \sim N \left(\dfrac{gb + n \tau \overline{y}}{g + n \tau}, \dfrac{1}{g + n \tau} \right)$
+
+**Importante:**
+
+1. Considerando $\gamma_n = \dfrac{g}{g + n \tau}$, sabemos que:
+
+$g + n \tau = \dfrac{g}{\gamma_n}$
+
+$n \tau = \dfrac{g}{\gamma_n} - g = \dfrac{g - \gamma_n g}{\gamma_n} = \dfrac{g(1 - \gamma_n)}{\gamma_n}$
+
+Logo,
+
+$E(\theta \mid y) = \dfrac{gb}{g + n \tau} + \dfrac{n \tau \overline{y}}{g + n \tau}$
+
+$E(\theta \mid y) = \gamma_n b + \dfrac{g(1 - \gamma_n) \gamma_n^{-1} \overline{y}}{g + n \tau}$
+
+$E(\theta \mid y) = \gamma_n b + \gamma_n (1 - \gamma_n) \gamma_n^{-1} \overline{y}$
+
+$E(\theta \mid y) = \gamma_n b + \dfrac{\gamma_n (1 - \gamma_n)\overline{y}}{\gamma_n}$
+
+$E(\theta \mid y) = \gamma_n b + (1 - \gamma_n)\overline{y}$
+
+Em outras palavras, a média da posteriori é simplesmente uma média ponderada entre a média da priori e $\overline{y}$. Além do mais, o parâmetro ponderador $\gamma_n$ é determinado pela força relativa da informação na priori em comparação com a dos dados. Ou seja, se $n \tau$ é grande relativamente a $g$, então $\gamma_n \approx 0$ e a média da posteriori é próxima de $\overline{y}$.
+
+<br>
+
+2. $\text{precisão à posteriori} = \text{precisão à priori} + n \times \text{precisão de cada dado}$
+
+<br>
+
+3. Quando $n \to \infty$, então $\theta \mid y \sim N \left(\overline{y}, \dfrac{\sigma^2}{n} \right)$, de tal forma que no limite a priori não tem efeito.
+
+<br>
+
+4. Quando $d \to \infty$, ou equivalente, $g \to 0$, novamente obtém-se que $\theta \mid y \sim N \left(\overline{y}, \dfrac{\sigma^2}{n} \right)$.
+
+<br>
+
+5. Note-se que a distribuição posteriori depende dos dados apenas através de $\sum_{i=1}^n y_i$ e não através dos valores indivudualizados dos $y_i$.
+
+<br>
+
+**Exemplo numérico**:
+
+Yambém tomado do programa First Bayes, considera-se um conjunto histórico de dados de densidade do solo em uma região registrados por Henry Cavendish no século XVIII. Agora, supõe-se que, de experimentos e medições prévios, a priori para $\theta$, a densidade média do solo, é considerada ser $N(5.4, 0.1^2)$. O pesquisador registrou 23 medidas da densidade do solo. Para estes dados, $\overline{y} = 5.48$ e supõe-se aqui que a variância de seu erro de medida é conhecida e igual a $0.04$.
+
+Logo, sabe-se que
+
+$b = 5.4$
+
+$d^2 = 0.1^2$
+
+$n = 23$
+
+$\overline{y} = 5.48$
+
+$\sigma^2 = 0.04$
+
+Portanto,
+
+$\theta \mid y \sim N \left(\dfrac{\frac{b}{d^2} + \frac{n\overline{y}}{\sigma^2}}{\frac{1}{d^2} + \frac{n}{\sigma^2}}, \dfrac{1}{\frac{1}{d^2} + \frac{n}{\sigma^2}} \right)$
+
+$\theta \mid y \sim N \left(\dfrac{540 + 3151}{100 + 575}, \dfrac{1}{100 + 575} \right)$
+
+$\theta \mid y \sim N \left(5.468148, 0.001481481 \right)$
+
+```{r, echo=FALSE}
+mpost = 5.468148
+vpost = 0.001481481
+yb = 5.48
+d = 0.1
+sig2 = 0.04
+n = 23
+
+curve(dnorm(x, mpost, sqrt(vpost)), from = 5.2, to = 5.8, n = 401, ylim = c(0, 10), xlab = expression(theta), ylab = expression(paste("P[", theta, "|y]")))
+
+curve(dnorm(x, mean = yb, sd = d), from = 5, to = 6, n = 401, add = TRUE, lty = 3, lwd = 1.5, col = 2)
+
+abline(v = 5.48, col = 4, lty = 2)
+
+curve(dnorm(x, 5.48, sqrt(sig2/n)), from = 5, to = 6, n = 401, add = TRUE, lty = 2,
+lwd = 1.5, col = 4)
+
+legend("topright", c("priori", "verossimilhança", "posteriori"), lty = c(3,
+2, 1), col = c(2, 4, 1), lwd = c(1.5, 1, 1))
+```
+
+## Exemplo 2.5
+
+Suponha uma urna com bolas pretas e vermelhas e deseja-se fazer inferência sobre a proporção $\theta$ de bolas pretas na urna. Vamos adotar a priori $\theta \sim \text{Beta}(1.2, 1.2)$. Considere ainda que foram conduzidos dois experimentos distintos e separadamente:
+
+a. Foram retiradas oito bolas (com reposição ou considera-se a urna com um número muito grande de bolas) e constatou-se que duas eram pretas.
+
+* $Y_a \sim \text{Bin}(n = 8, \theta)$ (número de bolas pretas entre as 8 amostradas)
+
+* $y_a = 2$
+
+Logo,
+
+
+$f(\theta) = \dfrac{\Gamma (p+q)}{\Gamma(p) \Gamma(q)} \theta^{p-1} (1 - \theta)^{q-1}$
+
+$f(\theta) = \dfrac{\Gamma (1.2 + 1.2)}{\Gamma(1.2) \Gamma(1.2)} \theta^{1.2 - 1} (1 - \theta)^{1.2 - 1}$
+
+$f(\theta) \propto \theta^{1.2-1} (1 - \theta)^{1.2-1}$
+
+<br>
+
+$f(y_a \mid \theta) = \binom{n}{y_a}\theta^{y_a} (1 - \theta)^{n-y_a}$
+
+$f(y_a \mid \theta) = \binom{8}{2}\theta^2 (1 - \theta)^{8-2}$
+
+$L(\theta \mid y_a) = f(y_a \mid \theta) \propto \theta^2 (1 - \theta)^{6}$
+
+<br>
+
+$f(\theta \mid y_a) \propto f(\theta)f(y_a \mid \theta)$
+
+$f(\theta \mid y_a) \propto \theta^{1.2-1} (1 - \theta)^{1.2-1} \times \theta^2 (1 - \theta)^{6}$
+
+$f(\theta \mid y_a) \propto \theta^{1.2 + 2 - 1} (1 - \theta)^{1.2 + 6 - 1}$
+
+$f(\theta \mid y_a) \propto \theta^{3.2 - 1} (1 - \theta)^{7.2 - 1}$
+
+<br>
+
+$\theta \mid y_a \sim \text{Beta}(3.2, 7.2)$
+
+b. Definiu-se que seriam retiradas bolas da urna até obter a segunda bola preta. Foram retiradas seis vermelhas.
+
+* $Y_b \sim \text{BN}(r = 2, \theta)$ (número de bolas vermelhas até obter a segunda preta)
+
+* $y_b = 6$
+
+Logo,
+
+$f(y_b \mid \theta) = \binom{r + y_b - 1}{r - 1}\theta^{r} (1 - \theta)^{y_b}$
+
+$f(y_b \mid \theta) = \binom{2 + 6 - 1}{2 - 1}\theta^{2} (1 - \theta)^{6}$
+
+$f(y_b \mid \theta) = \binom{7}{1}\theta^{2} (1 - \theta)^{6}$
+
+$L(\theta \mid y_b) = f(y_b \mid \theta) \propto \theta^2 (1 - \theta)^{6}$
+
+<br>
+
+$f(\theta \mid y_b) \propto f(\theta)f(y_b \mid \theta)$
+
+$f(\theta \mid y_b) \propto \theta^{1.2-1} (1 - \theta)^{1.2-1} \times \theta^2 (1 - \theta)^{6}$
+
+$f(\theta \mid y_b) \propto \theta^{1.2 + 2 - 1} (1 - \theta)^{1.2 + 6 - 1}$
+
+$f(\theta \mid y_b) \propto \theta^{3.2 - 1} (1 - \theta)^{7.2 - 1}$
+
+<br>
+
+$\theta \mid y_b \sim \text{Beta}(3.2, 7.2)$
+
+<br>
+
+## Exercício 2.1
+
+Em cada um dos casos a seguir, obtenha a distribuição posteriori:
+
+1. $y_1,\ldots,y_n$ é uma amostra aleatória de uma distribuição com função de probabilidades:
+
+$f(y \mid \theta) = \theta^{y-1}(1-\theta)$, $y \in \{ 1,2,\ldots \}$
+
+com distribuição $\text{Beta}(p,q)$ com densidade:
+
+$f(\theta) = \dfrac{\theta^{p-1}(1-\theta)^{q-1}}{B(p,q)}$, $0 < \theta < 1.$
+
+<hr>
+
+$L(\theta \mid y) = f(y \mid \theta) = \theta^{y-1}(1-\theta)$
+
+<br>
+
+$f(\theta) = \dfrac{\theta^{p-1}(1-\theta)^{q-1}}{B(p,q)}$
+
+$f(\theta) \propto \theta^{p-1}(1-\theta)^{q-1}$
+
+<br>
+
+$f(\theta \mid y) \propto f(\theta)f(y \mid \theta)$
+
+$f(\theta \mid y) \propto \theta^{p-1}(1-\theta)^{q-1} \times \theta^{y-1}(1-\theta)^1$
+
+$f(\theta \mid y) \propto \theta^{p + y - 1 - 1} (1-\theta)^{q + 1 - 1}$
+
+<br>
+
+$\theta \mid y \sim \text{Beta}(p+y-1, q+1)$
+
+<br>
+
+2. $y_1,\ldots,y_n$ é uma amostra aleatória de uma distribuição com função probabilidades:
+
+$f(y \mid \theta) = \dfrac{e^{-\theta}\theta^y}{y!}$, $y \in \{ 0,1,\ldots \}$
+
+com distribuição a priori:
+
+$f(\theta) = e^{-\theta}$
+
+<hr>
+
+$L(\theta \mid y) = f(y \mid \theta) \propto e^{-n\theta}\theta^{\sum_{i=1}^n y_i}$
+
+Observa-se que a expressão da verossimilhança corresponde ao núcleo de uma Gamma.
+
+<br>
+
+$f(\theta) = e^{-\theta}$
+
+<br>
+
+$f(\theta \mid y) \propto f(\theta)f(y \mid \theta)$
+
+$f(\theta \mid y) \propto e^{-\theta} \times e^{-n\theta}\theta^{\sum_{i=1}^n y_i}$
+
+$f(\theta \mid y) \propto e^{-\theta - n\theta} \theta^{\sum_{i=1}^n y_i}$
+
+$f(\theta \mid y) \propto e^{-\theta(1 + n)} \theta^{\sum_{i=1}^n y_i}$
+
+<br>
+
+$\theta \mid y \sim \text{Pois}\left[(1+n)\theta\right]$
+
+<br>
+
+## Exercício 2.2
+
+A proporção $\theta$ de itens defeituosos em um grande carregamento é desconhecida, mas uma avaliação especializada atribui a $\theta$ a distribuição a priori $\text{Beta}(2, 200)$. Se $100$ itens são selecionados ao acaso do carregamento, e são encontrados três defeituosos, qual a distribuição a posteriori de $\theta$?
+
+<br>
+
+Priori:
+
+$f(\theta) \propto \theta^{p-1} (1 - \theta)^{q-1}$
+
+$f(\theta) \propto \theta^{2-1} (1 - \theta)^{200-1}$
+
+<br>
+
+Verossimilhança:
+
+$L(\theta \mid y) \propto \theta^3 (1 - \theta)^{97}$
+
+<br>
+
+Teorema de Bayes:
+
+$f(\theta \mid y) \propto f(\theta) L(\theta \mid y)$
+
+$f(\theta \mid y) \propto \theta^{2-1} (1 - \theta)^{200-1} \times \theta^3 (1 - \theta)^{97}$
+
+$f(\theta \mid y) \propto \theta^{2 + 3 - 1} (1 - \theta)^{200 + 97 -1}$
+
+<br>
+
+$\theta \mid y \sim \text{Beta}(5, 297)$
+
+<br>
+
+Qual seria a distribuição a priori adotada por um outro estatístico que, tendo observado três defeituosos, calcula a distribuição a posteriori como sendo uma beta de média $4/102$ e variância $0.0003658$?
+
+<br>
+
+Posteriori:
+
+$E(\theta) = \dfrac{p}{p+q} = \dfrac{4}{102}$
+
+$p = 4$
+
+$q = 102 - 4 = 98$
+
+$\text{Var}(\theta) = \dfrac{pq}{(p+q)^2(p+q+1)} = 0.0003658$
+
+$\dfrac{4 \times 98}{(4 + 98)^2(4 + 98 + 1)} = 0.000365804$
+
+$\theta \mid y \sim \text{Beta}(4, 98)$
+
+<br>
+
+Verossimilhança:
+
+$L(\theta \mid y) \propto \theta^3 (1 - \theta)^{97}$
+
+<br>
+
+Priori:
+
+$f(\theta \mid y) \propto f(\theta) L(\theta \mid y)$
+
+$f(\theta) \propto \dfrac{f(\theta \mid y)}{L(\theta \mid y)}$
+
+$f(\theta) \propto \dfrac{\theta^{4-1} (1 - \theta)^{98-1}}{\theta^3 (1 - \theta)^{97}}$
+
+$f(\theta) \propto \theta^{4 - 3 -1} (1 - \theta)^{98 - 97 - 1}$
+
+<br>
+
+$\theta \sim \text{Beta}(1, 1)$
+
+<br>
+
+## Exercício 2.3
+
+O diâmetro de um componente em uma longa sequencia de produção varia segundo uma distribuição $N(\theta,1)$. Um engenheiro especifica a distribuição a priori de $\theta$ como sendo $N(10, 0.25)$. Em uma sequencia de produção $12$ componentes são amostrados e encontra-se que a média amostral é de $31/3$. Use esta informação para calcular a probabilidade de que o diâmetro médio do componente é de pelo menos $10$ unidades.
+
+<br>
+
+Priori:
+
+$\theta \sim N(b = 10, d^2 = 0.25)$
+
+$f(\theta) = \dfrac{1}{\sqrt{2 \pi d^2}}\exp\left\{-\dfrac{(\theta - b)^2}{2d^2}\right\}$
+
+$f(\theta) \propto \exp\left\{-\dfrac{(\theta - b)^2}{2d^2}\right\}$
+
+$f(\theta) \propto \exp\left\{-\dfrac{(\theta - 10)^2}{2(0.25)}\right\}$
+
+<br>
+
+Verossimilhança:
+
+$Y \sim N(\theta, \sigma^2 = 1)$
+
+$f(y_i \mid \theta) \propto \exp\left\{ - \dfrac{(\theta - \overline{y})^2}{2(\sigma^2/n)} \right\}$
+
+$f(y_i \mid \theta) \propto \exp\left\{ - \dfrac{(\theta - 31/3)^2}{2(1/12)} \right\}$
+
+<br>
+
+Teorema de Bayes:
+
+$f(\theta \mid y) \propto f(\theta) f(y \mid \theta)$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{(\theta - b)^2}{2d^2}\right\} \times  \exp\left\{ - \dfrac{\left( \theta - \overline{y} \right)^2}{2\left( \frac{\sigma^2}{n} \right)} \right\}$
+
+Considerando $c^2 = \frac{\sigma^2}{n}$, temos
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{(\theta - b)^2}{2d^2}\right\} \times  \exp\left\{ - \dfrac{\left( \theta - \overline{y} \right)^2}{2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{(\theta - b)^2}{2d^2} - \dfrac{\left(\theta - \overline{y} \right)^2}{2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{c^2(\theta - b)^2 - d^2(\theta - \overline{y} )^2}{4d^2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{c^2(\theta^2 - 2 \theta b + b^2) - d^2(\theta^2 - 2 \theta \overline{y} + \overline{y}^2 )}{4d^2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{c^2 \theta^2 - 2 c^2 \theta b + c^2 b^2 - d^2 \theta^2 + 2 d^2 \theta \overline{y} - d^2 \overline{y}^2}{4d^2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{c^2 \theta^2 - d^2 \theta^2 + 2 d^2 \theta \overline{y} - 2 c^2 \theta b + c^2 b^2 - d^2 \overline{y}^2}{4d^2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{c^2 \theta^2 - d^2 \theta^2 + 2 d^2 \theta \overline{y} - 2 c^2 \theta b + c^2 b^2 - d^2 \overline{y}^2}{4d^2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{c^2 \theta^2 - d^2 \theta^2 + 2 d^2 \theta \overline{y} - 2 c^2 \theta b + c^2 b^2 - d^2 \overline{y}^2}{4d^2c^2} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{1}{2} \left[ \dfrac{c^2 \theta^2 - d^2 \theta^2 + 2 d^2 \theta \overline{y} - 2 c^2 \theta b + c^2 b^2 - d^2 \overline{y}^2}{2d^2c^2} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{1}{2} \left[ \dfrac{\left( \frac{1}{12} \right) \theta^2 - \left( \frac{3}{12} \right) \theta^2 + 2 \left( \frac{3}{12} \right) \theta \left( \frac{124}{12} \right) - 2 \left( \frac{1}{12} \right) 10 \theta + \left( \frac{1}{12} \right) 100 - \left( \frac{3}{12} \right) \left( \frac{124}{12} \right)^2}{2 \left( \frac{3}{12} \right) \left( \frac{1}{12} \right)} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{1}{2} \left[ \dfrac{- \left( \frac{2}{12} \right) \theta^2 + \left( \frac{42}{12} \right) \theta - \left( \frac{661}{36} \right)}{\frac{1}{24}} \right] \right\}$
+
+Não consegui avançar...
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{(\theta - b)^2}{2d^2}\right\} \times  \exp\left\{ - \dfrac{(\theta - \overline{y})^2}{2(\sigma^2/n)} \right\}$
+
+
+
+$f(\theta \mid y) \propto \exp\left\{-\dfrac{(\theta - b)^2}{2d^2} - \dfrac{(\theta - \overline{y})^2}{2(\sigma^2/n)} \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{1}{2} \left[ \dfrac{(\theta - b)^2}{d^2} + \dfrac{(\theta - \overline{y})^2}{\sigma^2/n} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{1}{2} \left[ \dfrac{(\theta - b)^2}{0.25} + \dfrac{(\theta - \overline{y})^2}{1/12} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{1}{2} \left[ \dfrac{(\theta - b)^2}{3/12} + \dfrac{(\theta - \overline{y})^2}{1/12} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{1}{2} \left[ \dfrac{12(\theta - b)^2}{3} + \dfrac{12(\theta - \overline{y})^2}{1} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{2} \left[ \dfrac{(\theta - b)^2}{3} + \dfrac{(\theta - \overline{y})^2}{1} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{2} \left[ \dfrac{(\theta - b)^2 + 3(\theta - \overline{y})^2}{3} \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{6} \left[ (\theta - b)^2 + 3(\theta - \overline{y})^2 \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{6} \left[ (\theta^2 + b^2 - 2 \theta b) + 3(\theta^2 + \overline{y}^2 - 2 \theta \overline{y}) \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{6} \left[ \theta^2 + b^2 - 2 \theta b + 3\theta^2 + 3\overline{y}^2 - 6 \theta \overline{y}) \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{6} \left[ \theta^2 + 3\theta^2 - 2 \theta b - 6 \theta \overline{y} + 3\overline{y}^2 + b^2) \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{6} \left[ 4\theta^2 - 2\theta(b + 3\overline{y}) + 3\overline{y}^2 + b^2) \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{12}{6} \left[ 4\theta^2 - 2\theta(b + 3\overline{y}) \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{24}{6} \left[ 2\theta^2 - \theta(b + 3\overline{y}) \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{24 \theta}{6} \left[ 2\theta - (b + 3\overline{y}) \right] \right\}$
+
+$f(\theta \mid y) \propto \exp\left\{- \dfrac{24 \theta}{6} \left[ 2\theta - b - 3\overline{y} \right] \right\}$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, include=FALSE}
+y <- c(2,3,5,6,8)
+sigma <- sd(y)
+
+f_norm <- function(theta, sigma, y) {
+  out <- (1/(sqrt(2*pi*sigma^2))) * exp(-(y - theta)^2 / (2*sigma^2))
+  return(out)
+}
+
+L_norm <- function(theta, sigma, y_i) {
+  n <- length(y_i)
+  # out <- (2*pi*sigma^2)^(-n/2) * exp(-sum((y_i - theta)^2) / (2*sigma^2))
+  # out <- (2*pi*sigma^2)^(-n/2) * exp(-sum((y_i^2 - 2*y_i*theta + theta^2)) / (2*sigma^2))
+  out <- (2*pi*sigma^2)^(-n/2) * exp(-sum((y_i^2 - 2*y_i*theta + theta^2)) / (2*sigma^2))
+  return(out)
+}
+
+L_norm(4.8, sigma, y)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
